@@ -21,8 +21,8 @@ package net.luis.xbackpack.world.inventory.extension.slot;
 import net.luis.xbackpack.world.inventory.extension.FurnaceExtensionMenu;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -73,8 +73,8 @@ public class FurnaceExtensionResultSlot extends ExtensionSlot {
 	
 	@Override
 	protected void checkTakeAchievements(@NotNull ItemStack stack) {
-		stack.onCraftedBy(this.player.level(), this.player, this.removeCount);
+		stack.onCraftedBy(this.player, this.removeCount);
+		EventHooks.firePlayerSmeltedEvent(this.player, stack, this.removeCount);
 		this.removeCount = 0;
-		ForgeEventFactory.firePlayerSmeltedEvent(this.player, stack);
 	}
 }

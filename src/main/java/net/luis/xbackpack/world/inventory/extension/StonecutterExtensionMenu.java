@@ -84,7 +84,7 @@ public class StonecutterExtensionMenu extends AbstractExtensionMenu {
 	}
 	
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
-		stack.onCraftedBy(player.level(), player, stack.getCount());
+		stack.onCraftedBy(player, stack.getCount());
 		if (this.recipe != null && !this.recipe.value().isSpecial()) {
 			player.awardRecipes(Collections.singleton(this.recipe));
 		}
@@ -94,7 +94,7 @@ public class StonecutterExtensionMenu extends AbstractExtensionMenu {
 		}
 		this.menu.broadcastChanges();
 		if (player instanceof ServerPlayer serverPlayer) {
-			this.playSound(serverPlayer, serverPlayer.serverLevel());
+			this.playSound(serverPlayer, serverPlayer.level());
 		}
 	}
 	

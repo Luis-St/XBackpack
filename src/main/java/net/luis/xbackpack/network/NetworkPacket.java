@@ -18,8 +18,8 @@
 
 package net.luis.xbackpack.network;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,9 +28,7 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-public interface NetworkPacket {
-	
-	void encode(@NotNull FriendlyByteBuf buffer);
-	
-	void handle(CustomPayloadEvent.@NotNull Context context);
+public interface NetworkPacket extends CustomPacketPayload {
+
+	void handle(@NotNull IPayloadContext context);
 }

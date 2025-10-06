@@ -92,22 +92,22 @@ public class EnchantmentTableExtensionScreen extends AbstractExtensionScreen {
 			RenderSystem.setShaderTexture(0, this.getTexture());
 			if ((player.experienceLevel >= enchantingCost && this.hasFuel(row)) || player.getAbilities().instabuild) {
 				ResourceLocation sprite = this.isHoveringRow(row, mouseX, mouseY) ? ENCHANTMENT_SLOT_HIGHLIGHTED_SPRITE : ENCHANTMENT_SLOT_SPRITE;
-				graphics.blitSprite(RenderType::guiTextured, sprite, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
+				graphics.blitSprite(sprite, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
 				this.renderLevel(graphics, row, true);
 				costColor = 8453920;
 				enchantmentColor = 6839882;
 			} else {
-				graphics.blitSprite(RenderType::guiTextured, ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
+				graphics.blitSprite(ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
 				this.renderLevel(graphics, row, false);
 				costColor = 4226832;
 				enchantmentColor = 3419941;
 			}
 			this.renderLabels(graphics, row, costColor, enchantmentColor);
 		} else {
-			graphics.blitSprite(RenderType::guiTextured, ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
+			graphics.blitSprite(ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
 		}
 	}
-	
+
 	private void renderLevel(@NotNull GuiGraphics graphics, int row, boolean active) {
 		ResourceLocation sprite = switch (row) {
 			case 0 -> active ? LEVEL_1_SPRITE : LEVEL_1_DISABLED_SPRITE;
@@ -115,7 +115,7 @@ public class EnchantmentTableExtensionScreen extends AbstractExtensionScreen {
 			case 2 -> active ? LEVEL_3_SPRITE : LEVEL_3_DISABLED_SPRITE;
 			default -> throw new IllegalStateException("Expected row to be 0, 1 or 2, but got: " + row);
 		};
-		graphics.blitSprite(RenderType::guiTextured, sprite, this.leftPos + this.imageWidth + 47, this.topPos + 98 + row * 19, 16, 16);
+		graphics.blitSprite(sprite, this.leftPos + this.imageWidth + 47, this.topPos + 98 + row * 19, 16, 16);
 	}
 	
 	private void renderLabels(@NotNull GuiGraphics graphics, int row, int costColor, int enchantmentColor) {

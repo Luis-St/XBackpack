@@ -113,7 +113,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 	}
 	
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
-		stack.onCraftedBy(player.level(), player, stack.getCount());
+		stack.onCraftedBy(player, stack.getCount());
 		if (this.selectedRecipe != null) {
 			player.awardRecipes(Collections.singleton(this.selectedRecipe));
 		}
@@ -121,7 +121,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 		this.shrinkStackInSlot(1);
 		this.shrinkStackInSlot(2);
 		if (player instanceof ServerPlayer serverPlayer) {
-			this.playSound(serverPlayer, serverPlayer.serverLevel());
+			this.playSound(serverPlayer, serverPlayer.level());
 		}
 	}
 	

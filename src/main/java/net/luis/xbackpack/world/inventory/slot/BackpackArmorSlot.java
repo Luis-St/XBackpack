@@ -18,7 +18,6 @@
 
 package net.luis.xbackpack.world.inventory.slot;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
@@ -69,12 +68,12 @@ public class BackpackArmorSlot extends Slot {
 	}
 	
 	@Override
-	public @NotNull Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+	public @NotNull ResourceLocation getNoItemIcon() {
 		return switch (this.equipmentSlot) {
-			case HEAD -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
-			case CHEST -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
-			case LEGS -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
-			case FEET -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
+			case HEAD -> InventoryMenu.EMPTY_ARMOR_SLOT_HELMET;
+			case CHEST -> InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE;
+			case LEGS -> InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS;
+			case FEET -> InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS;
 			default -> super.getNoItemIcon();
 		};
 	}

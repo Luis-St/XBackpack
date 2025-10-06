@@ -27,7 +27,7 @@ import net.luis.xbackpack.world.inventory.handler.CraftingHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -59,7 +59,7 @@ public class GrindstoneExtensionScreen extends AbstractExtensionScreen {
 		if (open) {
 			ItemStackHandler handler = this.handler.getInputHandler();
 			if ((!handler.getStackInSlot(0).isEmpty() || !handler.getStackInSlot(1).isEmpty()) && this.handler.getResultHandler().getStackInSlot(0).isEmpty()) {
-				graphics.blitSprite(RenderType::guiTextured, ERROR_SPRITE, this.leftPos + this.imageWidth + 60, this.topPos + 184, 22, 21);
+				graphics.blitSprite(ERROR_SPRITE, this.leftPos + this.imageWidth + 60, this.topPos + 184, 22, 21);
 			}
 		}
 	}

@@ -22,8 +22,8 @@ import com.google.common.collect.Lists;
 import net.luis.xbackpack.core.components.XBDataComponents;
 import net.luis.xbackpack.world.inventory.slot.SlotWrapper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

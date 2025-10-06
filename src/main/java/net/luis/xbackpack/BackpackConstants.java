@@ -27,8 +27,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 public class BackpackConstants {
 	
-	private static final List<Item> ITEMS = ImmutableList.copyOf(ForgeRegistries.ITEMS.getValues());
+	private static final List<Item> ITEMS = ImmutableList.copyOf(BuiltInRegistries.ITEM.stream().toList());
 	
 	/**
 	 * Add recipe types to this list in {@link FMLCommonSetupEvent},<br>

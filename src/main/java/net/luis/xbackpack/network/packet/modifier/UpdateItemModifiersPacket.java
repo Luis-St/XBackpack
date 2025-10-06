@@ -18,16 +18,19 @@
 
 package net.luis.xbackpack.network.packet.modifier;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.XBClientPacketHandler;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.luis.xbackpack.world.inventory.modifier.filter.ItemFilter;
 import net.luis.xbackpack.world.inventory.modifier.filter.ItemFilters;
 import net.luis.xbackpack.world.inventory.modifier.sorter.ItemSorter;
 import net.luis.xbackpack.world.inventory.modifier.sorter.ItemSorters;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.fml.DistExecutor;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,33 +39,32 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-public class UpdateItemModifiersPacket implements NetworkPacket {
-	
-	private final ItemFilter filter;
-	private final ItemSorter sorter;
-	
+public record UpdateItemModifiersPacket(int filterId, int sorterId) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateItemModifiersPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_item_modifiers"));
+
+	public static final StreamCodec<ByteBuf, UpdateItemModifiersPacket> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.VAR_INT, UpdateItemModifiersPacket::filterId,
+		ByteBufCodecs.VAR_INT, UpdateItemModifiersPacket::sorterId,
+		UpdateItemModifiersPacket::new
+	);
+
 	public UpdateItemModifiersPacket(@NotNull ItemFilter filter, @NotNull ItemSorter sorter) {
-		this.filter = filter;
-		this.sorter = sorter;
+		this(filter.getId(), sorter.getId());
 	}
-	
-	public UpdateItemModifiersPacket(@NotNull FriendlyByteBuf buffer) {
-		this.filter = ItemFilters.byId(buffer.readInt(), ItemFilters.NONE);
-		this.sorter = ItemSorters.byId(buffer.readInt(), ItemSorters.NONE);
-	}
-	
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.filter.getId());
-		buffer.writeInt(this.sorter.getId());
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-				XBClientPacketHandler.updateBackpackItemModifiers(this.filter, this.sorter);
-			});
+			ItemFilter filter = ItemFilters.byId(this.filterId, ItemFilters.NONE);
+			ItemSorter sorter = ItemSorters.byId(this.sorterId, ItemSorters.NONE);
+			XBClientPacketHandler.updateBackpackItemModifiers(filter, sorter);
 		});
 	}
 }

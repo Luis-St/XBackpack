@@ -56,7 +56,7 @@ public class ActionButton extends AbstractButton {
 	public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		ResourceLocation sprite = this.isHovered() ? MODIFIER_BUTTON_HIGHLIGHTED_SPRITE : MODIFIER_BUTTON_SPRITE;
-		graphics.blitSprite(RenderType::guiTextured, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		graphics.blitSprite(sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	@Override

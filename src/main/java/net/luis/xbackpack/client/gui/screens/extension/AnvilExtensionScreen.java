@@ -61,7 +61,7 @@ public class AnvilExtensionScreen extends AbstractExtensionScreen {
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {
 		if (open) {
 			if (this.shouldRenderCanceled()) {
-				graphics.blitSprite(RenderType::guiTextured, ERROR_SPRITE, this.leftPos + this.imageWidth + 59, this.topPos + 71, 22, 21);
+				graphics.blitSprite(ERROR_SPRITE, this.leftPos + this.imageWidth + 59, this.topPos + 71, 22, 21);
 			}
 			this.renderLabels(graphics);
 		}

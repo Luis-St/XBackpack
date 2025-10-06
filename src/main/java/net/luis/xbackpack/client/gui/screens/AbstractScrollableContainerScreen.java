@@ -35,10 +35,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.ForgeEventFactoryClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
@@ -48,15 +48,80 @@ import java.util.Objects;
  */
 
 public abstract class AbstractScrollableContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
-	
+
 	private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
 	private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
-	
+
+	// Reflection fields for accessing private AbstractContainerScreen fields
+	private static Field draggingItemField;
+	private static Field isSplittingStackField;
+	private static Field clickedSlotField;
+	private static Field quickCraftingTypeField;
+	private static Field quickCraftingRemainderField;
+
+	static {
+		try {
+			draggingItemField = AbstractContainerScreen.class.getDeclaredField("draggingItem");
+			draggingItemField.setAccessible(true);
+			isSplittingStackField = AbstractContainerScreen.class.getDeclaredField("isSplittingStack");
+			isSplittingStackField.setAccessible(true);
+			clickedSlotField = AbstractContainerScreen.class.getDeclaredField("clickedSlot");
+			clickedSlotField.setAccessible(true);
+			quickCraftingTypeField = AbstractContainerScreen.class.getDeclaredField("quickCraftingType");
+			quickCraftingTypeField.setAccessible(true);
+			quickCraftingRemainderField = AbstractContainerScreen.class.getDeclaredField("quickCraftingRemainder");
+			quickCraftingRemainderField.setAccessible(true);
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException("Failed to access AbstractContainerScreen private fields", e);
+		}
+	}
+
 	private boolean scrolling = false;
 	protected int scrollOffset = 0;
 	
 	protected AbstractScrollableContainerScreen(@NotNull T menu, @NotNull Inventory inventory, @NotNull Component titleComponent) {
 		super(menu, inventory, titleComponent);
+	}
+
+	// Helper methods to access private fields via reflection
+	protected ItemStack getDraggingItem() {
+		try {
+			return (ItemStack) draggingItemField.get(this);
+		} catch (IllegalAccessException e) {
+			return ItemStack.EMPTY;
+		}
+	}
+
+	protected boolean isSplittingStack() {
+		try {
+			return isSplittingStackField.getBoolean(this);
+		} catch (IllegalAccessException e) {
+			return false;
+		}
+	}
+
+	protected Slot getClickedSlot() {
+		try {
+			return (Slot) clickedSlotField.get(this);
+		} catch (IllegalAccessException e) {
+			return null;
+		}
+	}
+
+	protected int getQuickCraftingType() {
+		try {
+			return quickCraftingTypeField.getInt(this);
+		} catch (IllegalAccessException e) {
+			return 0;
+		}
+	}
+
+	protected int getQuickCraftingRemainder() {
+		try {
+			return quickCraftingRemainderField.getInt(this);
+		} catch (IllegalAccessException e) {
+			return 0;
+		}
 	}
 	
 	@Override
@@ -69,7 +134,6 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		for (Renderable widget : this.renderables) {
 			widget.render(graphics, mouseX, mouseY, partialTicks);
 		}
-		ForgeEventFactoryClient.onContainerRenderBackground(this, graphics, mouseX, mouseY);
 		//endregion
 		RenderSystem.disableDepthTest();
 		graphics.pose().pushPose();
@@ -85,15 +149,15 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		}
 		
 		this.renderLabels(graphics, mouseX, mouseY);
-		ForgeEventFactoryClient.onContainerRenderForeground(this, graphics, mouseX, mouseY);
-		ItemStack mouseStack = this.draggingItem.isEmpty() ? this.menu.getCarried() : this.draggingItem;
+		ItemStack draggingItem = this.getDraggingItem();
+		ItemStack mouseStack = draggingItem.isEmpty() ? this.menu.getCarried() : draggingItem;
 		if (!mouseStack.isEmpty()) {
-			int renderOffset = this.draggingItem.isEmpty() ? 8 : 16;
+			int renderOffset = draggingItem.isEmpty() ? 8 : 16;
 			String count = null;
-			if (!this.draggingItem.isEmpty() && this.isSplittingStack) {
+			if (!draggingItem.isEmpty() && this.isSplittingStack()) {
 				mouseStack = mouseStack.copyWithCount(Mth.ceil(mouseStack.getCount() / 2.0F));
 			} else if (this.isQuickCrafting && this.quickCraftSlots.size() > 1) {
-				mouseStack = mouseStack.copyWithCount(this.quickCraftingRemainder);
+				mouseStack = mouseStack.copyWithCount(this.getQuickCraftingRemainder());
 				if (mouseStack.isEmpty()) {
 					count = ChatFormatting.YELLOW + "0";
 				}
@@ -143,7 +207,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		Slot slot = this.hoveredSlot;
 		if (slot != null && slot.isHighlightable() && this.getSlotRenderType(slot) != SlotRenderType.SKIP) {
 			int y = slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y;
-			graphics.blitSprite(RenderType::guiTexturedOverlay, sprite, slot.x - 4, y - 4, 24, 24);
+			graphics.blitSprite(sprite, slot.x - 4, y - 4, 24, 24);
 		}
 	}
 	
@@ -152,10 +216,13 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		int y = slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y;
 		ItemStack slotStack = slot.getItem();
 		ItemStack carriedStack = this.menu.getCarried();
+		ItemStack draggingItem = this.getDraggingItem();
+		Slot clickedSlot = this.getClickedSlot();
+		boolean isSplittingStack = this.isSplittingStack();
 		boolean quickReplace = false;
-		boolean clickedSlot = slot == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
+		boolean isClickedSlot = slot == clickedSlot && !draggingItem.isEmpty() && !isSplittingStack;
 		String stackCount = null;
-		if (slot == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !slotStack.isEmpty()) {
+		if (slot == clickedSlot && !draggingItem.isEmpty() && isSplittingStack && !slotStack.isEmpty()) {
 			slotStack = slotStack.copyWithCount(slotStack.getCount() / 2);
 		} else if (this.isQuickCrafting && this.quickCraftSlots.contains(slot) && !carriedStack.isEmpty()) {
 			if (this.quickCraftSlots.size() == 1) {
@@ -164,7 +231,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			if (AbstractContainerMenu.canItemQuickReplace(slot, carriedStack, true) && this.menu.canDragTo(slot)) {
 				quickReplace = true;
 				int count = Math.min(carriedStack.getMaxStackSize(), slot.getMaxStackSize(carriedStack));
-				int craftPlaceCount = AbstractContainerMenu.getQuickCraftPlaceCount(this.quickCraftSlots, this.quickCraftingType, carriedStack) + (slot.getItem().isEmpty() ? 0 : slot.getItem().getCount());
+				int craftPlaceCount = AbstractContainerMenu.getQuickCraftPlaceCount(this.quickCraftSlots, this.getQuickCraftingType(), carriedStack) + (slot.getItem().isEmpty() ? 0 : slot.getItem().getCount());
 				if (craftPlaceCount > count) {
 					craftPlaceCount = count;
 					stackCount = ChatFormatting.YELLOW.toString() + count;
@@ -181,11 +248,11 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
 			if (pair != null) {
 				TextureAtlasSprite atlasSprite = Objects.requireNonNull(this.minecraft).getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-				graphics.blitSprite(RenderType::guiTextured, atlasSprite, slot.x, y, 16, 16);
-				clickedSlot = true;
+				graphics.blitSprite(atlasSprite, slot.x, y, 16, 16);
+				isClickedSlot = true;
 			}
 		}
-		if (!clickedSlot) {
+		if (!isClickedSlot) {
 			if (quickReplace) {
 				graphics.fill(slot.x, y, slot.x + 16, y + 16, -2130706433);
 			}

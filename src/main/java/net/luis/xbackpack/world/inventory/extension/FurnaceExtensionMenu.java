@@ -104,7 +104,7 @@ public class FurnaceExtensionMenu extends AbstractExtensionMenu {
 		for (RecipeType<? extends AbstractCookingRecipe> recipeType : BackpackConstants.FURNACE_RECIPE_TYPES) {
 			Optional<RecipeHolder<AbstractCookingRecipe>> optional = Optional.empty();
 			if (this.player instanceof ServerPlayer player) {
-				optional = player.serverLevel().recipeAccess().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), player.serverLevel());
+				optional = player.level().recipeAccess().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), player.level());
 			}
 			return optional.isPresent();
 		}
@@ -113,7 +113,7 @@ public class FurnaceExtensionMenu extends AbstractExtensionMenu {
 	
 	private boolean isFuel(@NotNull ItemStack stack) {
 		for (RecipeType<? extends AbstractCookingRecipe> recipeType : BackpackConstants.FURNACE_RECIPE_TYPES) {
-			if (this.player.level().fuelValues().burnDuration(stack, recipeType) > 0) {
+			if (this.player.level().fuelValues().burnDuration(stack) > 0) {
 				return true;
 			}
 		}

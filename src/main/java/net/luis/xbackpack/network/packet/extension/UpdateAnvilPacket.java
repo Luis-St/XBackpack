@@ -18,12 +18,15 @@
 
 package net.luis.xbackpack.network.packet.extension;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.XBClientPacketHandler;
 import net.luis.xbackpack.network.NetworkPacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.fml.DistExecutor;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,29 +35,25 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-public class UpdateAnvilPacket implements NetworkPacket {
-	
-	private final int cost;
-	
-	public UpdateAnvilPacket(int cost) {
-		this.cost = cost;
-	}
-	
-	public UpdateAnvilPacket(@NotNull FriendlyByteBuf buffer) {
-		this.cost = buffer.readInt();
-	}
-	
+public record UpdateAnvilPacket(int cost) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateAnvilPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_anvil"));
+
+	public static final StreamCodec<ByteBuf, UpdateAnvilPacket> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.VAR_INT, UpdateAnvilPacket::cost,
+		UpdateAnvilPacket::new
+	);
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.cost);
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-				XBClientPacketHandler.updateAnvilExtension(this.cost);
-			});
+			XBClientPacketHandler.updateAnvilExtension(this.cost);
 		});
 	}
 }

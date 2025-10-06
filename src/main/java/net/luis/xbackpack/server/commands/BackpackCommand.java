@@ -47,7 +47,7 @@ public class BackpackCommand {
 		dispatcher.register(Commands.literal("backpack").requires((source) -> {
 			return source.hasPermission(2);
 		}).then(Commands.literal("extension").then(Commands.argument("player", EntityArgument.player()).then(Commands.literal("*").then(Commands.argument("state", BackpackExtensionStateArgument.state()).executes((command) -> {
-			return setExtensionState(command.getSource(), EntityArgument.getPlayer(command, "player"), Lists.newArrayList(BackpackExtensions.REGISTRY.get().getValues()), BackpackExtensionStateArgument.get(command, "state"));
+			return setExtensionState(command.getSource(), EntityArgument.getPlayer(command, "player"), Lists.newArrayList(BackpackExtensions.REGISTRY.getValues()), BackpackExtensionStateArgument.get(command, "state"));
 		}))).then(Commands.argument("extension", BackpackExtensionArgument.extension()).executes((command) -> {
 			return getExtensionState(command.getSource(), EntityArgument.getPlayer(command, "player"), Lists.newArrayList(BackpackExtensionArgument.get(command, "extension")));
 		}).then(Commands.argument("state", BackpackExtensionStateArgument.state()).executes((command) -> {
@@ -88,7 +88,7 @@ public class BackpackCommand {
 	}
 	
 	private static @NotNull String getName(BackpackExtension extension) {
-		String[] nameParts = Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(extension)).getPath().split("_");
+		String[] nameParts = Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(extension)).getPath().split("_");
 		StringBuilder name = new StringBuilder();
 		for (String namePart : nameParts) {
 			String startChar = namePart.substring(0, 1).toUpperCase();

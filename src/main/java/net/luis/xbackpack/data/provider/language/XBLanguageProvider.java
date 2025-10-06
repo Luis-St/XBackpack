@@ -20,7 +20,7 @@ package net.luis.xbackpack.data.provider.language;
 
 import net.luis.xbackpack.XBackpack;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 import org.jetbrains.annotations.NotNull;
 
 /**

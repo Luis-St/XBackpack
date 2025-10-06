@@ -41,7 +41,7 @@ public class BackpackExtensionConfig {
 	private final Map<BackpackExtension, Data> states = Maps.newHashMap();
 	
 	public BackpackExtensionConfig() {
-		for (BackpackExtension extension : BackpackExtensions.REGISTRY.get().getValues()) {
+		for (BackpackExtension extension : BackpackExtensions.REGISTRY) {
 			this.states.put(extension, new Data(BackpackExtensionState.LOCKED, 0));
 		}
 	}
@@ -65,7 +65,7 @@ public class BackpackExtensionConfig {
 	}
 	
 	public void update(@NotNull ServerPlayer player) {
-		for (BackpackExtension extension : BackpackExtensions.REGISTRY.get().getValues()) {
+		for (BackpackExtension extension : BackpackExtensions.REGISTRY) {
 			Data data = this.getData(extension);
 			BackpackExtensionState state = data.state();
 			if (state != BackpackExtensionState.BLOCKED) {
@@ -85,7 +85,7 @@ public class BackpackExtensionConfig {
 		ListTag statesTag = new ListTag();
 		for (Entry<BackpackExtension, Data> entry : this.states.entrySet()) {
 			CompoundTag stateTag = new CompoundTag();
-			stateTag.putString("key", Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(entry.getKey())).toString());
+			stateTag.putString("key", Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(entry.getKey())).toString());
 			stateTag.putString("value", entry.getValue().state().getName());
 			stateTag.putInt("unlock_count", entry.getValue().unlockCount());
 			statesTag.add(stateTag);
@@ -95,12 +95,12 @@ public class BackpackExtensionConfig {
 	}
 	
 	public void deserialize(@NotNull CompoundTag tag) {
-		ListTag statesTag = tag.getList("states", Tag.TAG_COMPOUND);
+		ListTag statesTag = tag.getList("states").orElse(new ListTag());
 		for (int i = 0; i < statesTag.size(); i++) {
-			CompoundTag stateTag = statesTag.getCompound(i);
-			BackpackExtension extension = BackpackExtensions.REGISTRY.get().getValue(ResourceLocation.tryParse(stateTag.getString("key")));
-			BackpackExtensionState state = BackpackExtensionState.fromString(stateTag.getString("value"), BackpackExtensionState.LOCKED);
-			int unlockCount = stateTag.getInt("unlock_count");
+			CompoundTag stateTag = statesTag.getCompound(i).orElse(new CompoundTag());
+			BackpackExtension extension = BackpackExtensions.REGISTRY.getValue(ResourceLocation.tryParse(stateTag.getString("key").orElse("")));
+			BackpackExtensionState state = BackpackExtensionState.fromString(stateTag.getString("value").orElse(""), BackpackExtensionState.LOCKED);
+			int unlockCount = stateTag.getInt("unlock_count").orElse(0);
 			if (extension != null) {
 				this.states.put(extension, new Data(state, unlockCount));
 			}

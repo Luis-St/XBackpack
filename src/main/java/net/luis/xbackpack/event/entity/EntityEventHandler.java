@@ -21,9 +21,9 @@ package net.luis.xbackpack.event.entity;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.world.capability.BackpackProvider;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@Mod.EventBusSubscriber(modid = XBackpack.MOD_ID)
+@EventBusSubscriber(modid = XBackpack.MOD_ID)
 public class EntityEventHandler {
 	
 	@SubscribeEvent

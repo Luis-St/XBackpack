@@ -31,10 +31,10 @@ import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -54,7 +54,7 @@ public class BackpackExtensionArgument implements ArgumentType<BackpackExtension
 		return Component.translatable("xbackpack.commands.arguments.extension.invalid", name);
 	});
 	
-	private final Supplier<IForgeRegistry<BackpackExtension>> registrySupplier;
+	private final Supplier<Registry<BackpackExtension>> registrySupplier;
 	
 	private BackpackExtensionArgument() {
 		this.registrySupplier = BackpackExtensions.REGISTRY;

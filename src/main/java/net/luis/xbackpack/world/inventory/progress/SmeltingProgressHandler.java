@@ -27,8 +27,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +132,9 @@ public class SmeltingProgressHandler implements ProgressHandler {
 				int count = input.getCount() + stack.getCount();
 				input.setCount(Math.min(count, input.getMaxStackSize()));
 				this.handler.getInputHandler().setStackInSlot(0, input);
-				handler.setStackInSlot(i, ItemHandlerHelper.copyStackWithSize(input, Math.max(count - input.getMaxStackSize(), 0)));
+				ItemStack remainder = input.copy();
+				remainder.setCount(Math.max(count - input.getMaxStackSize(), 0));
+				handler.setStackInSlot(i, remainder);
 			}
 			ItemStack input = this.getInputItem();
 			if (input.getCount() >= input.getMaxStackSize()) {
@@ -157,7 +159,9 @@ public class SmeltingProgressHandler implements ProgressHandler {
 					int remaining = Math.min(count, stack.getMaxStackSize());
 					result.setCount(Math.max(count - stack.getMaxStackSize(), 0));
 					this.handler.getResultHandler().setStackInSlot(0, result);
-					handler.setStackInSlot(i, ItemHandlerHelper.copyStackWithSize(stack, remaining));
+					ItemStack merged = stack.copy();
+					merged.setCount(remaining);
+					handler.setStackInSlot(i, merged);
 				}
 			}
 		}
@@ -218,7 +222,7 @@ public class SmeltingProgressHandler implements ProgressHandler {
 		for (RecipeType<? extends AbstractCookingRecipe> recipeType : this.recipeTypes) {
 			Optional<RecipeHolder<AbstractCookingRecipe>> optional = Optional.empty();
 			if (this.player instanceof ServerPlayer player) {
-				optional = player.serverLevel().recipeAccess().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), player.serverLevel());
+				optional = player.level().recipeAccess().getRecipeFor((RecipeType<AbstractCookingRecipe>) recipeType, new SingleRecipeInput(stack), player.level());
 			}
 			if (optional.isPresent()) {
 				AbstractCookingRecipe recipe = optional.get().value();
@@ -248,7 +252,7 @@ public class SmeltingProgressHandler implements ProgressHandler {
 	private int getFuelTime(@NotNull ItemStack stack) {
 		int fuelTime = 0;
 		for (RecipeType<? extends AbstractCookingRecipe> recipeType : this.recipeTypes) {
-			fuelTime = Math.max(this.player.level().fuelValues().burnDuration(stack, recipeType), fuelTime);
+			fuelTime = Math.max(this.player.level().fuelValues().burnDuration(stack), fuelTime);
 		}
 		return fuelTime;
 	}
@@ -301,9 +305,9 @@ public class SmeltingProgressHandler implements ProgressHandler {
 	
 	@Override
 	public void deserialize(@NotNull CompoundTag tag) {
-		this.cookingProgress = tag.getInt("cooking_progress");
-		this.cookingTime = tag.getInt("cooking_time");
-		this.fuelTime = tag.getInt("fuel_time");
-		this.maxFuel = tag.getInt("max_fuel");
+		this.cookingProgress = tag.getInt("cooking_progress").orElse(0);
+		this.cookingTime = tag.getInt("cooking_time").orElse(0);
+		this.fuelTime = tag.getInt("fuel_time").orElse(0);
+		this.maxFuel = tag.getInt("max_fuel").orElse(0);
 	}
 }

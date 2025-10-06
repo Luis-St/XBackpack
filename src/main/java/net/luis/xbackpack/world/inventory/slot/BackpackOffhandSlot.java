@@ -18,7 +18,6 @@
 
 package net.luis.xbackpack.world.inventory.slot;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -32,13 +31,13 @@ import org.jetbrains.annotations.NotNull;
  */
 
 public class BackpackOffhandSlot extends Slot {
-	
+
 	public BackpackOffhandSlot(@NotNull Container container, int index, int xPosition, int yPosition) {
 		super(container, index, xPosition, yPosition);
 	}
-	
+
 	@Override
-	public @NotNull Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
+	public @NotNull ResourceLocation getNoItemIcon() {
+		return InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD;
 	}
 }

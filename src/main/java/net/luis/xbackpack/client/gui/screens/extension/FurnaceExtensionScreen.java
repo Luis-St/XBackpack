@@ -50,8 +50,8 @@ public class FurnaceExtensionScreen extends AbstractExtensionScreen {
 	@Override
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {
 		if (open) {
-			graphics.blitSprite(RenderType::guiTextured, LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - this.fuelProgress, this.leftPos + this.imageWidth + 5, this.topPos + 104 - this.fuelProgress, 14, this.fuelProgress);
-			graphics.blitSprite(RenderType::guiTextured, BURN_PROGRESS_SPRITE, 24, 17, 0, 0, this.leftPos + this.imageWidth + 24, this.topPos + 88, this.cookingProgress, 17);
+			graphics.blitSprite(LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - this.fuelProgress, this.leftPos + this.imageWidth + 5, this.topPos + 104 - this.fuelProgress, 14, this.fuelProgress);
+			graphics.blitSprite(BURN_PROGRESS_SPRITE, 24, 17, 0, 0, this.leftPos + this.imageWidth + 24, this.topPos + 88, this.cookingProgress, 17);
 		}
 	}
 	

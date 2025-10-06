@@ -19,11 +19,11 @@
 package net.luis.xbackpack.world.item;
 
 import net.luis.xbackpack.XBackpack;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -42,24 +42,18 @@ public class DynamicItemStackHandler extends ItemStackHandler {
 	}
 	
 	@Override
-	public CompoundTag serializeNBT(HolderLookup.@NotNull Provider lookup) {
-		ListTag itemsTag = new ListTag();
+	public void serialize(@NotNull ValueOutput output) {
+		output.writeVarInt(this.initialSize);
+		output.writeVarInt(this.stacks.size());
 		for (int i = 0; i < this.stacks.size(); i++) {
-			if (!this.stacks.get(i).isEmpty()) {
-				CompoundTag itemTag = new CompoundTag();
-				itemTag.putInt("Slot", i);
-				itemsTag.add(this.stacks.get(i).save(lookup, itemTag));
-			}
+			output.writeItem(this.stacks.get(i));
 		}
-		CompoundTag handlerTag = new CompoundTag();
-		handlerTag.put("Items", itemsTag);
-		handlerTag.putInt("Size", this.initialSize);
-		return handlerTag;
 	}
-	
+
 	@Override
-	public void deserializeNBT(HolderLookup.@NotNull Provider lookup, @NotNull CompoundTag tag) {
-		int size = tag.contains("Size", Tag.TAG_INT) ? tag.getInt("Size") : this.stacks.size();
+	public void deserialize(@NotNull ValueInput input) {
+		int size = input.readVarInt();
+		int stackCount = input.readVarInt();
 		boolean reduced = false;
 		if (this.initialSize >= size) {
 			this.setSize(this.initialSize);
@@ -67,17 +61,12 @@ public class DynamicItemStackHandler extends ItemStackHandler {
 			this.setSize(size);
 			reduced = true;
 		}
-		ListTag itemsTag = tag.getList("Items", Tag.TAG_COMPOUND);
 		if (reduced) {
 			XBackpack.LOGGER.error("DynamicItemStackHandler does currently not support shrinking of the inventory size");
 			throw new RuntimeException("Tried to deserialize to an ItemStackHandler with more slots than it was created with");
 		} else {
-			for (int i = 0; i < itemsTag.size(); i++) {
-				CompoundTag itemTag = itemsTag.getCompound(i);
-				int slot = itemTag.getInt("Slot");
-				if (slot >= 0 && slot < this.stacks.size()) {
-					this.stacks.set(slot, ItemStack.parseOptional(lookup, itemTag));
-				}
+			for (int i = 0; i < stackCount && i < this.stacks.size(); i++) {
+				this.stacks.set(i, input.readItem());
 			}
 		}
 		this.onLoad();

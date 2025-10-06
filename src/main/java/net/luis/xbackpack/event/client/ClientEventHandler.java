@@ -32,13 +32,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent.MouseScrollingEvent;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.InputEvent.MouseScrollingEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -49,7 +48,7 @@ import java.util.Objects;
  *
  */
 
-@Mod.EventBusSubscriber(modid = XBackpack.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = XBackpack.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 	
 	public static int lastPacket = 0;
@@ -60,28 +59,26 @@ public class ClientEventHandler {
 	}
 	
 	@SubscribeEvent
-	public static void clientTick(TickEvent.@NotNull ClientTickEvent event) {
-		if (event.phase == Phase.START) {
-			if (0 >= lastPacket) {
-				if (XBKeyMappings.BACKPACK_OPEN.isDown()) {
-					XBNetworkHandler.INSTANCE.sendToServer(new OpenBackpackPacket());
-					lastPacket = 4;
-				} else if (XBKeyMappings.BACKPACK_NEXT.isDown()) {
-					XBNetworkHandler.INSTANCE.sendToServer(new NextToolPacket());
-					lastPacket = 4;
-				} else if (XBKeyMappings.BACKPACK_SLOT_TOP.isDown()) {
-					XBNetworkHandler.INSTANCE.sendToServer(new ToolTopPacket());
-					lastPacket = 4;
-				} else if (XBKeyMappings.BACKPACK_SLOT_MID.isDown()) {
-					XBNetworkHandler.INSTANCE.sendToServer(new ToolMidPacket());
-					lastPacket = 4;
-				} else if (XBKeyMappings.BACKPACK_SLOT_DOWN.isDown()) {
-					XBNetworkHandler.INSTANCE.sendToServer(new ToolDownPacket());
-					lastPacket = 4;
-				}
-			} else {
-				lastPacket--;
+	public static void clientTick(ClientTickEvent.@NotNull Pre event) {
+		if (0 >= lastPacket) {
+			if (XBKeyMappings.BACKPACK_OPEN.isDown()) {
+				XBNetworkHandler.INSTANCE.sendToServer(new OpenBackpackPacket());
+				lastPacket = 4;
+			} else if (XBKeyMappings.BACKPACK_NEXT.isDown()) {
+				XBNetworkHandler.INSTANCE.sendToServer(new NextToolPacket());
+				lastPacket = 4;
+			} else if (XBKeyMappings.BACKPACK_SLOT_TOP.isDown()) {
+				XBNetworkHandler.INSTANCE.sendToServer(new ToolTopPacket());
+				lastPacket = 4;
+			} else if (XBKeyMappings.BACKPACK_SLOT_MID.isDown()) {
+				XBNetworkHandler.INSTANCE.sendToServer(new ToolMidPacket());
+				lastPacket = 4;
+			} else if (XBKeyMappings.BACKPACK_SLOT_DOWN.isDown()) {
+				XBNetworkHandler.INSTANCE.sendToServer(new ToolDownPacket());
+				lastPacket = 4;
 			}
+		} else {
+			lastPacket--;
 		}
 	}
 	

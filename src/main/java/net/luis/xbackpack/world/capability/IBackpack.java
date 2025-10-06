@@ -24,8 +24,7 @@ import net.luis.xbackpack.world.inventory.progress.ProgressHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@AutoRegisterCapability
 public interface IBackpack {
 	
 	@NotNull Player getPlayer();

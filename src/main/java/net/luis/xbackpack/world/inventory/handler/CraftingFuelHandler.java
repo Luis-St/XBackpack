@@ -21,7 +21,9 @@ package net.luis.xbackpack.world.inventory.handler;
 import net.luis.xbackpack.world.item.DynamicItemStackHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -58,13 +60,16 @@ public class CraftingFuelHandler extends CraftingHandler {
 	@Override
 	public @NotNull CompoundTag serialize(HolderLookup.@NotNull Provider provider) {
 		CompoundTag tag = super.serialize(provider);
-		tag.put("fuel_handler", this.fuelHandler.serializeNBT(provider));
+		ValueOutput output = ValueOutput.forCompoundTag(provider);
+		output.putChild("fuel_handler", this.fuelHandler);
+		output.store(tag);
 		return tag;
 	}
-	
+
 	@Override
 	public void deserialize(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
 		super.deserialize(provider, tag);
-		this.fuelHandler.deserializeNBT(provider, tag.getCompound("fuel_handler"));
+		ValueInput input = ValueInput.forCompoundTag(provider, tag);
+		input.child("fuel_handler").ifPresent(this.fuelHandler::deserialize);
 	}
 }

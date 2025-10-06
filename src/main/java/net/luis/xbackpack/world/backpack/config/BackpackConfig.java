@@ -74,7 +74,7 @@ public class BackpackConfig {
 	}
 	
 	public void deserialize(@NotNull CompoundTag tag) {
-		this.extensionConfig.deserialize(tag.getCompound("extension_config"));
+		this.extensionConfig.deserialize(tag.getCompound("extension_config").orElse(new CompoundTag()));
 	}
 	//endregion
 }

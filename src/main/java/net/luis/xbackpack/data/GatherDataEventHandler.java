@@ -21,10 +21,9 @@ package net.luis.xbackpack.data;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.data.provider.language.XBLanguageProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@EventBusSubscriber(modid = XBackpack.MOD_ID, bus = Bus.MOD)
+@EventBusSubscriber(modid = XBackpack.MOD_ID)
 public class GatherDataEventHandler {
 	
 	@SubscribeEvent

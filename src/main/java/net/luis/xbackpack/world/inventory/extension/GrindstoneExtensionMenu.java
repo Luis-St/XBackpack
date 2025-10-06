@@ -40,8 +40,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.GrindstoneEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.GrindstoneEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -97,11 +97,11 @@ public class GrindstoneExtensionMenu extends AbstractExtensionMenu {
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			GrindstoneEvent.OnTakeItem event = new GrindstoneEvent.OnTakeItem(this.handler.getInputHandler().getStackInSlot(0), this.handler.getInputHandler().getStackInSlot(1), this.getExperienceAmount(player.level()));
-			if (MinecraftForge.EVENT_BUS.post(event)) {
+			if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
 				return;
 			}
 			player.giveExperiencePoints(event.getXp());
-			this.playSound(serverPlayer, serverPlayer.serverLevel());
+			this.playSound(serverPlayer, serverPlayer.level());
 			this.handler.getInputHandler().setStackInSlot(0, event.getNewTopItem());
 			this.handler.getInputHandler().setStackInSlot(1, event.getNewBottomItem());
 		}
@@ -225,7 +225,7 @@ public class GrindstoneExtensionMenu extends AbstractExtensionMenu {
 	
 	private int onGrindstoneChange(@NotNull ItemStack topStack, @NotNull ItemStack bottomStack, int xp) {
 		GrindstoneEvent.OnPlaceItem event = new GrindstoneEvent.OnPlaceItem(topStack, bottomStack, xp);
-		if (MinecraftForge.EVENT_BUS.post(event)) {
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
 			return event.getXp();
 		}
 		if (event.getOutput().isEmpty()) {

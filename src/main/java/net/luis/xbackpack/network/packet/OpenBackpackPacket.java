@@ -18,14 +18,17 @@
 
 package net.luis.xbackpack.network.packet;
 
+import io.netty.buffer.ByteBuf;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.luis.xbackpack.world.inventory.BackpackMenu;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,22 +37,25 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-public class OpenBackpackPacket implements NetworkPacket {
-	
+public record OpenBackpackPacket() implements NetworkPacket {
+
 	private static final Component CONTAINER_NAME = Component.translatable(XBackpack.MOD_ID + ".container.backpack");
-	
-	public OpenBackpackPacket() {}
-	
-	public OpenBackpackPacket(@NotNull FriendlyByteBuf buffer) {}
-	
+
+	public static final CustomPacketPayload.Type<OpenBackpackPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "open_backpack"));
+
+	public static final StreamCodec<ByteBuf, OpenBackpackPacket> STREAM_CODEC =
+		StreamCodec.unit(new OpenBackpackPacket());
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {}
-	
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
-		ServerPlayer player = context.getSender();
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
-			assert player != null;
+			ServerPlayer player = (ServerPlayer) context.player();
 			if (player.containerMenu == player.inventoryMenu) {
 				player.openMenu(new SimpleMenuProvider((id, inventory, playerIn) -> new BackpackMenu(id, inventory), CONTAINER_NAME));
 			}

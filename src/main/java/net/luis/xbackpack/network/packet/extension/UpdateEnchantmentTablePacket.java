@@ -18,14 +18,18 @@
 
 package net.luis.xbackpack.network.packet.extension;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.XBClientPacketHandler;
 import net.luis.xbackpack.network.NetworkPacket;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  *
@@ -33,47 +37,64 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-public class UpdateEnchantmentTablePacket implements NetworkPacket {
-	
-	private final ResourceLocation[] enchantments;
-	private final int[] enchantmentLevels;
-	private final int[] enchantingCosts;
-	private final int enchantmentSeed;
-	
+public record UpdateEnchantmentTablePacket(@NotNull List<ResourceLocation> enchantments, int @NotNull [] enchantmentLevels, int @NotNull [] enchantingCosts, int enchantmentSeed) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateEnchantmentTablePacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_enchantment_table"));
+
+	public static final StreamCodec<ByteBuf, UpdateEnchantmentTablePacket> STREAM_CODEC = new StreamCodec<>() {
+		@Override
+		public void encode(@NotNull ByteBuf buffer, @NotNull UpdateEnchantmentTablePacket packet) {
+			ByteBufCodecs.VAR_INT.encode(buffer, packet.enchantments.size());
+			for (ResourceLocation enchantment : packet.enchantments) {
+				ByteBufCodecs.RESOURCE_LOCATION.encode(buffer, enchantment);
+			}
+			ByteBufCodecs.VAR_INT.encode(buffer, packet.enchantmentLevels.length);
+			for (int level : packet.enchantmentLevels) {
+				ByteBufCodecs.VAR_INT.encode(buffer, level);
+			}
+			ByteBufCodecs.VAR_INT.encode(buffer, packet.enchantingCosts.length);
+			for (int cost : packet.enchantingCosts) {
+				ByteBufCodecs.VAR_INT.encode(buffer, cost);
+			}
+			ByteBufCodecs.VAR_INT.encode(buffer, packet.enchantmentSeed);
+		}
+
+		@Override
+		public @NotNull UpdateEnchantmentTablePacket decode(@NotNull ByteBuf buffer) {
+			int enchantmentCount = ByteBufCodecs.VAR_INT.decode(buffer);
+			ResourceLocation[] enchantments = new ResourceLocation[enchantmentCount];
+			for (int i = 0; i < enchantmentCount; i++) {
+				enchantments[i] = ByteBufCodecs.RESOURCE_LOCATION.decode(buffer);
+			}
+			int levelCount = ByteBufCodecs.VAR_INT.decode(buffer);
+			int[] levels = new int[levelCount];
+			for (int i = 0; i < levelCount; i++) {
+				levels[i] = ByteBufCodecs.VAR_INT.decode(buffer);
+			}
+			int costCount = ByteBufCodecs.VAR_INT.decode(buffer);
+			int[] costs = new int[costCount];
+			for (int i = 0; i < costCount; i++) {
+				costs[i] = ByteBufCodecs.VAR_INT.decode(buffer);
+			}
+			int seed = ByteBufCodecs.VAR_INT.decode(buffer);
+			return new UpdateEnchantmentTablePacket(List.of(enchantments), levels, costs, seed);
+		}
+	};
+
 	public UpdateEnchantmentTablePacket(ResourceLocation @NotNull [] enchantments, int @NotNull [] enchantmentLevels, int @NotNull [] enchantingCosts, int enchantmentSeed) {
-		this.enchantments = enchantments;
-		this.enchantmentLevels = enchantmentLevels;
-		this.enchantingCosts = enchantingCosts;
-		this.enchantmentSeed = enchantmentSeed;
+		this(List.of(enchantments), enchantmentLevels, enchantingCosts, enchantmentSeed);
 	}
-	
-	public UpdateEnchantmentTablePacket(@NotNull FriendlyByteBuf buffer) {
-		this.enchantments = new ResourceLocation[buffer.readInt()];
-		for (int i = 0; i < this.enchantments.length; i++) {
-			this.enchantments[i] = buffer.readResourceLocation();
-		}
-		this.enchantmentLevels = buffer.readVarIntArray();
-		this.enchantingCosts = buffer.readVarIntArray();
-		this.enchantmentSeed = buffer.readInt();
-	}
-	
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.enchantments.length);
-		for (ResourceLocation enchantment : this.enchantments) {
-			buffer.writeResourceLocation(enchantment);
-		}
-		buffer.writeVarIntArray(this.enchantmentLevels);
-		buffer.writeVarIntArray(this.enchantingCosts);
-		buffer.writeInt(this.enchantmentSeed);
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-				XBClientPacketHandler.updateEnchantmentTableExtension(this.enchantments, this.enchantmentLevels, this.enchantingCosts, this.enchantmentSeed);
-			});
+			XBClientPacketHandler.updateEnchantmentTableExtension(this.enchantments.toArray(new ResourceLocation[0]), this.enchantmentLevels, this.enchantingCosts, this.enchantmentSeed);
 		});
 	}
 }

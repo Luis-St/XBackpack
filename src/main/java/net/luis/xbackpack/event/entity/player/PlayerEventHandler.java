@@ -25,13 +25,11 @@ import net.luis.xbackpack.world.inventory.BackpackMenu;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@Mod.EventBusSubscriber(modid = XBackpack.MOD_ID)
+@EventBusSubscriber(modid = XBackpack.MOD_ID)
 public class PlayerEventHandler {
 	
 	@SubscribeEvent
@@ -61,14 +59,12 @@ public class PlayerEventHandler {
 	public static void playerClone(PlayerEvent.@NotNull Clone event) {
 		Player original = event.getOriginal();
 		Player player = event.getEntity();
-		original.reviveCaps();
-		original.getCapability(BackpackProvider.BACKPACK, null).ifPresent(oldBackpack -> {
-			player.getCapability(BackpackProvider.BACKPACK, null).ifPresent(newBackpack -> {
-				RegistryAccess access = original.registryAccess();
-				newBackpack.deserialize(access, oldBackpack.serialize(access));
-			});
-		});
-		original.invalidateCaps();
+		if (event.isWasDeath()) {
+			IBackpack oldBackpack = BackpackProvider.get(original);
+			IBackpack newBackpack = BackpackProvider.get(player);
+			RegistryAccess access = original.registryAccess();
+			newBackpack.deserialize(access, oldBackpack.serialize(access));
+		}
 	}
 	
 	@SubscribeEvent
@@ -79,10 +75,10 @@ public class PlayerEventHandler {
 	}
 	
 	@SubscribeEvent
-	public static void playerTick(TickEvent.@NotNull PlayerTickEvent event) {
-		if (event.phase == Phase.START && event.side == LogicalSide.SERVER) {
-			event.player.getCapability(BackpackProvider.BACKPACK, null).ifPresent(IBackpack::tick);
-			if (event.player.containerMenu instanceof BackpackMenu menu) {
+	public static void playerTick(PlayerTickEvent.@NotNull Pre event) {
+		if (!event.getEntity().level().isClientSide()) {
+			BackpackProvider.get(event.getEntity()).tick();
+			if (event.getEntity().containerMenu instanceof BackpackMenu menu) {
 				menu.tick();
 			}
 		}

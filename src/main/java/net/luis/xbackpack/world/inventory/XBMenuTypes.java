@@ -19,9 +19,11 @@
 package net.luis.xbackpack.world.inventory;
 
 import net.luis.xbackpack.XBackpack;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.registries.*;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
  *
@@ -30,8 +32,8 @@ import net.minecraftforge.registries.*;
  */
 
 public class XBMenuTypes {
-	
-	public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, XBackpack.MOD_ID);
-	
-	public static final RegistryObject<MenuType<BackpackMenu>> BACKPACK_MENU = MENU_TYPES.register("backpack_menu", () -> IForgeMenuType.create(BackpackMenu::new));
+
+	public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, XBackpack.MOD_ID);
+
+	public static final DeferredHolder<MenuType<?>, MenuType<BackpackMenu>> BACKPACK_MENU = MENU_TYPES.register("backpack_menu", () -> new MenuType<>(BackpackMenu::new, FeatureFlags.DEFAULT_FLAGS));
 }

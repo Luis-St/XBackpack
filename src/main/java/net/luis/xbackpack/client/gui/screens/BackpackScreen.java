@@ -108,19 +108,19 @@ public class BackpackScreen extends AbstractModifiableContainerScreen<BackpackMe
 	@Override
 	protected void renderScreen(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderScreen(graphics, mouseX, mouseY, partialTicks);
-		graphics.blitSprite(RenderType::guiTextured, FILTER_SPRITE, this.leftPos + 75, this.topPos + 6, 8, 8);
-		graphics.blitSprite(RenderType::guiTextured, SORTER_SPRITE, this.leftPos + 89, this.topPos + 6, 8, 8);
+		graphics.blitSprite(FILTER_SPRITE, this.leftPos + 75, this.topPos + 6, 8, 8);
+		graphics.blitSprite(SORTER_SPRITE, this.leftPos + 89, this.topPos + 6, 8, 8);
 		if (this.menu.getFilter() == ItemFilters.NONE && this.menu.getSorter() == ItemSorters.NONE) {
-			graphics.blitSprite(RenderType::guiTextured, MERGER_SPRITE, this.leftPos + 200, this.topPos + 6, 8, 8);
+			graphics.blitSprite(MERGER_SPRITE, this.leftPos + 200, this.topPos + 6, 8, 8);
 		}
 	}
-	
+
 	@Override
 	protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
 		super.renderBg(graphics, partialTicks, mouseX, mouseY);
-		graphics.blit(RenderType::guiTextured, BACKPACK, this.leftPos, this.topPos, 0, 0, 220, 220, 256, 256);
+		graphics.blit(BACKPACK, this.leftPos, this.topPos, 0, 0, 220, 220, 256, 256);
 		int scrollPosition = this.topPos + 18 + this.scrollOffset;
-		graphics.blitSprite(RenderType::guiTextured, SCROLLER_SPRITE, this.leftPos + 198, scrollPosition, 12, 15);
+		graphics.blitSprite(SCROLLER_SPRITE, this.leftPos + 198, scrollPosition, 12, 15);
 	}
 	
 	@Override

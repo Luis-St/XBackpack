@@ -106,15 +106,15 @@ public abstract class AbstractExtensionScreen {
 	}
 	
 	protected @NotNull ResourceLocation getTexture() {
-		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(this.extension));
+		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(this.extension));
 		return ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "textures/gui/container/" + location.getPath() + "_extension.png");
 	}
-	
+
 	public void render(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
 		int offset = this.getExtensionOffset(this.extension);
 		int iconWidth = this.extension.getIconWidth();
 		int iconHeight = this.extension.getIconHeight();
-		graphics.blitSprite(RenderType::guiTextured, EXTENSION_BUTTON_SPRITE, this.leftPos + this.imageWidth, this.topPos + offset, iconWidth, iconHeight);
+		graphics.blitSprite(EXTENSION_BUTTON_SPRITE, this.leftPos + this.imageWidth, this.topPos + offset, iconWidth, iconHeight);
 		graphics.renderItem(this.extension.getIcon(), this.leftPos + this.imageWidth + 1, this.topPos + 3 + offset);
 	}
 	
@@ -122,7 +122,7 @@ public abstract class AbstractExtensionScreen {
 		int offset = this.getExtensionOffset(this.extension);
 		int x = this.leftPos + this.imageWidth - 3;
 		int y = this.topPos + offset;
-		graphics.blit(RenderType::guiTextured, this.getTexture(), x, y, 0.0F, 0.0F, 150, 150, 256, 256);
+		graphics.blit(this.getTexture(), x, y, 0.0F, 0.0F, 150, 150, 256, 256);
 		graphics.renderItem(this.extension.getIcon(), this.leftPos + this.imageWidth + 1, this.topPos + 4 + offset);
 		graphics.renderItemDecorations(this.font, this.extension.getIcon(), this.leftPos + this.imageWidth + 1, this.topPos + 4 + offset);
 		graphics.drawString(this.font, this.extension.getTitle(), this.leftPos + this.imageWidth + 19, this.topPos + 9 + offset, 4210752, false);
