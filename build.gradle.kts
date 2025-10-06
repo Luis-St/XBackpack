@@ -2,8 +2,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 plugins {
-	idea
-	`maven-publish`
+	id("idea")
+	id("java-library")
+	id("maven-publish")
 	id("net.neoforged.gradle.userdev") version "7.0.+"
 	id("io.github.themrmilchmann.curseforge-publish") version "0.6.1"
 }
@@ -37,7 +38,7 @@ runs {
 	}
 }
 
-sourceSets.main {
+sourceSets.main.configure {
 	resources.srcDir("src/generated/resources")
 }
 
@@ -54,12 +55,6 @@ repositories {
 
 dependencies {
 	implementation("net.neoforged:neoforge:${property("NeoForgeVersion")}")
-
-	implementation("net.sf.jopt-simple:jopt-simple:5.0.4") {
-		version {
-			strictly("5.0.4")
-		}
-	}
 
 	// Jei does not have a version for 1.21.8 yet
 	/*compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-common-api:${property("JeiVersion")}")
@@ -153,8 +148,9 @@ tasks.withType<JavaCompile>().configureEach {
 	options.encoding = "UTF-8"
 }
 
-sourceSets.forEach {
-	val dir = layout.buildDirectory.dir("sourcesSets/${it.name}")
-	it.output.setResourcesDir(dir)
-	it.java.destinationDirectory = dir
+idea {
+	module {
+		isDownloadSources = true
+		isDownloadJavadoc = true
+	}
 }
