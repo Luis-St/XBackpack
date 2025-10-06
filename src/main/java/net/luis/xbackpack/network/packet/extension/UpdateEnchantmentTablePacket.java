@@ -47,7 +47,7 @@ public record UpdateEnchantmentTablePacket(@NotNull List<ResourceLocation> encha
 		public void encode(@NotNull ByteBuf buffer, @NotNull UpdateEnchantmentTablePacket packet) {
 			ByteBufCodecs.VAR_INT.encode(buffer, packet.enchantments.size());
 			for (ResourceLocation enchantment : packet.enchantments) {
-				ByteBufCodecs.RESOURCE_LOCATION.encode(buffer, enchantment);
+				ResourceLocation.STREAM_CODEC.encode(buffer, enchantment);
 			}
 			ByteBufCodecs.VAR_INT.encode(buffer, packet.enchantmentLevels.length);
 			for (int level : packet.enchantmentLevels) {
@@ -65,7 +65,7 @@ public record UpdateEnchantmentTablePacket(@NotNull List<ResourceLocation> encha
 			int enchantmentCount = ByteBufCodecs.VAR_INT.decode(buffer);
 			ResourceLocation[] enchantments = new ResourceLocation[enchantmentCount];
 			for (int i = 0; i < enchantmentCount; i++) {
-				enchantments[i] = ByteBufCodecs.RESOURCE_LOCATION.decode(buffer);
+				enchantments[i] = ResourceLocation.STREAM_CODEC.decode(buffer);
 			}
 			int levelCount = ByteBufCodecs.VAR_INT.decode(buffer);
 			int[] levels = new int[levelCount];

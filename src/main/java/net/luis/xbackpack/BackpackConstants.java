@@ -54,7 +54,7 @@ public class BackpackConstants {
 	 * if you want to add valid items for the tool slot
 	 */
 	public static final List<Item> VALID_TOOL_SLOT_ITEMS = ITEMS.stream().filter(item -> {
-		return item instanceof SwordItem || item instanceof DiggerItem || item instanceof ShearsItem || item instanceof FlintAndSteelItem || item instanceof ProjectileWeaponItem;
+		return item.components().has(DataComponents.TOOL) || item instanceof ShearsItem || item instanceof FlintAndSteelItem || item instanceof ProjectileWeaponItem;
 	}).collect(Collectors.toList());
 	
 	/**
@@ -64,7 +64,7 @@ public class BackpackConstants {
 	 * note: the item can only be place in the Slot if {@link ItemStack#canEquip(EquipmentSlot, Entity)} returns {@code true}
 	 */
 	public static final List<Item> VALID_ARMOR_SLOT_ITEMS = ITEMS.stream().filter(item -> {
-		return item instanceof ArmorItem || item.components().has(DataComponents.GLIDER) || item == Items.CARVED_PUMPKIN || item.components().has(DataComponents.EQUIPPABLE);
+		return item.components().has(DataComponents.EQUIPPABLE) || item.components().has(DataComponents.GLIDER) || item == Items.CARVED_PUMPKIN;
 	}).collect(Collectors.toList());
 	
 	/**

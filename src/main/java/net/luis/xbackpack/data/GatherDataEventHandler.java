@@ -39,7 +39,7 @@ public class GatherDataEventHandler {
 	public static void gatherData(@NotNull GatherDataEvent event) {
 		DataGenerator generator = event.getGenerator();
 		if (event.includeDev()) {
-			generator.addProvider(event.includeClient(), new XBLanguageProvider(generator.getPackOutput()));
+			event.addProvider(new XBLanguageProvider(generator.getPackOutput()));
 		}
 	}
 }

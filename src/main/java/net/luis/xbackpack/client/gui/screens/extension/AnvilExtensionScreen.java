@@ -61,7 +61,7 @@ public class AnvilExtensionScreen extends AbstractExtensionScreen {
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {
 		if (open) {
 			if (this.shouldRenderCanceled()) {
-				graphics.blitSprite(ERROR_SPRITE, this.leftPos + this.imageWidth + 59, this.topPos + 71, 22, 21);
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, ERROR_SPRITE, this.leftPos + this.imageWidth + 59, this.topPos + 71, 22, 21);
 			}
 			this.renderLabels(graphics);
 		}
@@ -75,7 +75,6 @@ public class AnvilExtensionScreen extends AbstractExtensionScreen {
 	}
 	
 	private void renderLabels(@NotNull GuiGraphics graphics) {
-		RenderSystem.disableBlend();
 		if (this.screen.getMenu().getExtensionMenu(this.extension) instanceof AnvilExtensionMenu menu) {
 			if (this.cost > 0) {
 				int color = 8453920;

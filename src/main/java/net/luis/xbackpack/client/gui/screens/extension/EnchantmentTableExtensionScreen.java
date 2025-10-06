@@ -89,22 +89,21 @@ public class EnchantmentTableExtensionScreen extends AbstractExtensionScreen {
 		if (enchantment != null && this.enchantingCosts[row] > 0) {
 			int costColor;
 			int enchantmentColor;
-			RenderSystem.setShaderTexture(0, this.getTexture());
 			if ((player.experienceLevel >= enchantingCost && this.hasFuel(row)) || player.getAbilities().instabuild) {
 				ResourceLocation sprite = this.isHoveringRow(row, mouseX, mouseY) ? ENCHANTMENT_SLOT_HIGHLIGHTED_SPRITE : ENCHANTMENT_SLOT_SPRITE;
-				graphics.blitSprite(sprite, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
 				this.renderLevel(graphics, row, true);
 				costColor = 8453920;
 				enchantmentColor = 6839882;
 			} else {
-				graphics.blitSprite(ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
 				this.renderLevel(graphics, row, false);
 				costColor = 4226832;
 				enchantmentColor = 3419941;
 			}
 			this.renderLabels(graphics, row, costColor, enchantmentColor);
 		} else {
-			graphics.blitSprite(ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, ENCHANTMENT_SLOT_DISABLED_SPRITE, this.leftPos + this.imageWidth + 47, this.topPos + 97 + row * 19, 78, 19);
 		}
 	}
 
@@ -115,7 +114,7 @@ public class EnchantmentTableExtensionScreen extends AbstractExtensionScreen {
 			case 2 -> active ? LEVEL_3_SPRITE : LEVEL_3_DISABLED_SPRITE;
 			default -> throw new IllegalStateException("Expected row to be 0, 1 or 2, but got: " + row);
 		};
-		graphics.blitSprite(sprite, this.leftPos + this.imageWidth + 47, this.topPos + 98 + row * 19, 16, 16);
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, this.leftPos + this.imageWidth + 47, this.topPos + 98 + row * 19, 16, 16);
 	}
 	
 	private void renderLabels(@NotNull GuiGraphics graphics, int row, int costColor, int enchantmentColor) {
@@ -161,7 +160,10 @@ public class EnchantmentTableExtensionScreen extends AbstractExtensionScreen {
 					components.add(levelComponent.withStyle(ChatFormatting.GRAY));
 				}
 			}
-			graphics.renderComponentTooltip(this.font, components, mouseX, mouseY);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = components.stream()
+				.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+				.toList();
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null);
 		}
 	}
 	

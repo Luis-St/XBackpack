@@ -102,7 +102,7 @@ public class BrewingStandExtensionMenu extends AbstractExtensionMenu {
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 		Optional<Holder<Potion>> optional = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).potion();
 		if (optional.isPresent() && player instanceof ServerPlayer serverPlayer) {
-			NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerBrewedPotionEvent(player, stack));
+			net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.brewing.PlayerBrewedPotionEvent(player, stack));
 			CriteriaTriggers.BREWED_POTION.trigger(serverPlayer, optional.get());
 		}
 	}

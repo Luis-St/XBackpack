@@ -18,6 +18,7 @@
 
 package net.luis.xbackpack.network;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -41,7 +42,9 @@ public enum XBNetworkHandler {
 	}
 
 	public <T extends NetworkPacket> void sendToServer(T packet) {
-		PacketDistributor.sendToServer(packet);
+		if (Minecraft.getInstance().getConnection() != null) {
+			Minecraft.getInstance().getConnection().send(packet);
+		}
 	}
 
 	public <T extends NetworkPacket> void sendToPlayer(Player player, T packet) {

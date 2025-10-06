@@ -46,7 +46,7 @@ public record UpdateExtensionPacket(@NotNull ResourceLocation extensionId) imple
 		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_extension"));
 
 	public static final StreamCodec<ByteBuf, UpdateExtensionPacket> STREAM_CODEC = StreamCodec.composite(
-		ByteBufCodecs.RESOURCE_LOCATION, UpdateExtensionPacket::extensionId,
+		ResourceLocation.STREAM_CODEC, UpdateExtensionPacket::extensionId,
 		UpdateExtensionPacket::new
 	);
 

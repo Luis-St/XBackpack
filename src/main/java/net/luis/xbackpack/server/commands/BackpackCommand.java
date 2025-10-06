@@ -27,6 +27,7 @@ import net.luis.xbackpack.world.capability.IBackpack;
 import net.luis.xbackpack.world.extension.*;
 import net.minecraft.commands.*;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -47,7 +49,11 @@ public class BackpackCommand {
 		dispatcher.register(Commands.literal("backpack").requires((source) -> {
 			return source.hasPermission(2);
 		}).then(Commands.literal("extension").then(Commands.argument("player", EntityArgument.player()).then(Commands.literal("*").then(Commands.argument("state", BackpackExtensionStateArgument.state()).executes((command) -> {
-			return setExtensionState(command.getSource(), EntityArgument.getPlayer(command, "player"), Lists.newArrayList(BackpackExtensions.REGISTRY.getValues()), BackpackExtensionStateArgument.get(command, "state"));
+			List<BackpackExtension> extensions = new java.util.ArrayList<>();
+			for (BackpackExtension extension : BackpackExtensions.REGISTRY) {
+				extensions.add(extension);
+			}
+			return setExtensionState(command.getSource(), EntityArgument.getPlayer(command, "player"), Lists.newArrayList(extensions), BackpackExtensionStateArgument.get(command, "state"));
 		}))).then(Commands.argument("extension", BackpackExtensionArgument.extension()).executes((command) -> {
 			return getExtensionState(command.getSource(), EntityArgument.getPlayer(command, "player"), Lists.newArrayList(BackpackExtensionArgument.get(command, "extension")));
 		}).then(Commands.argument("state", BackpackExtensionStateArgument.state()).executes((command) -> {

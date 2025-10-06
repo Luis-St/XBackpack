@@ -81,7 +81,7 @@ public class StonecutterExtensionScreen extends AbstractExtensionScreen {
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {
 		if (open) {
 			ResourceLocation sprite = this.isScrollBarActive() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
-			graphics.blitSprite(sprite, this.leftPos + this.imageWidth + 72, this.topPos + 143 + (int) (39.0 * this.scrollOffset), 12, 15);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, this.leftPos + this.imageWidth + 72, this.topPos + 143 + (int) (39.0 * this.scrollOffset), 12, 15);
 			this.renderButtons(graphics, mouseX, mouseY);
 			this.renderRecipes(graphics);
 		}
@@ -99,7 +99,7 @@ public class StonecutterExtensionScreen extends AbstractExtensionScreen {
 			} else if (mouseX >= x && x + 16 > mouseX && mouseY + 1 >= y && y + 18 > mouseY + 1) {
 				sprite = RECIPE_HIGHLIGHTED_SPRITE;
 			}
-			graphics.blitSprite(sprite, x, y - 1, 16, 18);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, x, y - 1, 16, 18);
 		}
 	}
 	

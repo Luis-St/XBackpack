@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -135,19 +136,14 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			widget.render(graphics, mouseX, mouseY, partialTicks);
 		}
 		//endregion
-		RenderSystem.disableDepthTest();
-		graphics.pose().pushPose();
-		graphics.pose().translate(this.leftPos, this.topPos, 0.0F);
-		
-		Slot slot = this.hoveredSlot;
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(this.leftPos, this.topPos);
+
 		this.hoveredSlot = this.getHoveredSlot(mouseX, mouseY);
 		this.renderSlotHighlightBack(graphics);
 		this.renderSlots(graphics);
 		this.renderSlotHighlightFront(graphics);
-		if (slot != null && slot != this.hoveredSlot) {
-			this.onStopHovering(slot);
-		}
-		
+
 		this.renderLabels(graphics, mouseX, mouseY);
 		ItemStack draggingItem = this.getDraggingItem();
 		ItemStack mouseStack = draggingItem.isEmpty() ? this.menu.getCarried() : draggingItem;
@@ -162,21 +158,13 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 					count = ChatFormatting.YELLOW + "0";
 				}
 			}
-			this.renderFloatingItem(graphics, mouseStack, mouseX - this.leftPos - 8, mouseY - this.topPos - renderOffset, count);
+			int x = mouseX - this.leftPos - 8;
+			int y = mouseY - this.topPos - renderOffset;
+			graphics.renderItem(mouseStack, x, y);
+			graphics.renderItemDecorations(this.font, mouseStack, x, y, count);
 		}
-		if (!this.snapbackItem.isEmpty()) {
-			float f = (float) (Util.getMillis() - this.snapbackTime) / 100.0F;
-			if (f >= 1.0F) {
-				f = 1.0F;
-				this.snapbackItem = ItemStack.EMPTY;
-			}
-			int x = this.snapbackStartX + (int) ((float) this.snapbackEnd.x - this.snapbackStartX * f);
-			int y = this.snapbackStartY + (int) ((float) this.snapbackEnd.y - this.snapbackStartY * f);
-			this.renderFloatingItem(graphics, this.snapbackItem, x, y, null);
-		}
-		
-		graphics.pose().popPose();
-		RenderSystem.enableDepthTest();
+
+		graphics.pose().popMatrix();
 		this.renderTooltip(graphics, mouseX, mouseY);
 	}
 	
@@ -193,12 +181,10 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		}
 	}
 	
-	@Override
 	protected void renderSlotHighlightBack(@NotNull GuiGraphics graphics) {
 		this.renderSlotHighlight(graphics, SLOT_HIGHLIGHT_BACK_SPRITE);
 	}
-	
-	@Override
+
 	protected void renderSlotHighlightFront(@NotNull GuiGraphics graphics) {
 		this.renderSlotHighlight(graphics, SLOT_HIGHLIGHT_FRONT_SPRITE);
 	}
@@ -207,7 +193,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		Slot slot = this.hoveredSlot;
 		if (slot != null && slot.isHighlightable() && this.getSlotRenderType(slot) != SlotRenderType.SKIP) {
 			int y = slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y;
-			graphics.blitSprite(sprite, slot.x - 4, y - 4, 24, 24);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, slot.x - 4, y - 4, 24, 24);
 		}
 	}
 	
@@ -239,16 +225,14 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 				slotStack = carriedStack.copyWithCount(craftPlaceCount);
 			} else {
 				this.quickCraftSlots.remove(slot);
-				this.recalculateQuickCraftRemaining();
 			}
 		}
-		graphics.pose().pushPose();
-		graphics.pose().translate(0.0, 0.0, 100.0);
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(0.0f, 0.0f);
 		if (slotStack.isEmpty() && slot.isActive()) {
-			Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
-			if (pair != null) {
-				TextureAtlasSprite atlasSprite = Objects.requireNonNull(this.minecraft).getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-				graphics.blitSprite(atlasSprite, slot.x, y, 16, 16);
+			ResourceLocation icon = slot.getNoItemIcon();
+			if (icon != null) {
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, icon, slot.x, y, 16, 16);
 				isClickedSlot = true;
 			}
 		}
@@ -264,17 +248,20 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			}
 			graphics.renderItemDecorations(this.font, slotStack, slot.x, y, stackCount);
 		}
-		graphics.pose().popPose();
+		graphics.pose().popMatrix();
 	}
 	
-	@Override
 	protected void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
 		if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem() && this.getSlotRenderType(this.hoveredSlot) == SlotRenderType.DEFAULT) {
-			graphics.renderTooltip(this.font, this.hoveredSlot.getItem(), mouseX, mouseY);
+			ItemStack itemStack = this.hoveredSlot.getItem();
+			List<Component> tooltipLines = itemStack.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.EMPTY, this.minecraft.player, this.minecraft.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag.ADVANCED : net.minecraft.world.item.TooltipFlag.NORMAL);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = tooltipLines.stream()
+				.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+				.toList();
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null, itemStack);
 		}
 	}
-	
-	@Override
+
 	public @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < this.menu.slots.size(); ++i) {
 			Slot slot = this.menu.slots.get(i);
@@ -325,8 +312,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		this.scrollOffset = this.clampMouseScroll(deltaY);
 		return true;
 	}
-	
-	@Override
+
 	public boolean isHovering(@NotNull Slot slot, double mouseX, double mouseY) {
 		return this.isHovering(slot.x, slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y, 16, 16, mouseX, mouseY);
 	}

@@ -96,7 +96,8 @@ public class GrindstoneExtensionMenu extends AbstractExtensionMenu {
 	
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			GrindstoneEvent.OnTakeItem event = new GrindstoneEvent.OnTakeItem(this.handler.getInputHandler().getStackInSlot(0), this.handler.getInputHandler().getStackInSlot(1), this.getExperienceAmount(player.level()));
+			net.minecraft.world.inventory.ContainerLevelAccess access = net.minecraft.world.inventory.ContainerLevelAccess.create(player.level(), player.blockPosition());
+			GrindstoneEvent.OnTakeItem event = new GrindstoneEvent.OnTakeItem(access, player, this.handler.getInputHandler().getStackInSlot(0), this.handler.getInputHandler().getStackInSlot(1), this.getExperienceAmount(player.level()));
 			if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
 				return;
 			}

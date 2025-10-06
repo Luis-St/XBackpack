@@ -55,9 +55,9 @@ public class BackpackExtensionArgument implements ArgumentType<BackpackExtension
 	});
 	
 	private final Supplier<Registry<BackpackExtension>> registrySupplier;
-	
+
 	private BackpackExtensionArgument() {
-		this.registrySupplier = BackpackExtensions.REGISTRY;
+		this.registrySupplier = () -> BackpackExtensions.REGISTRY;
 	}
 	
 	public static @NotNull BackpackExtensionArgument extension() {
@@ -71,8 +71,9 @@ public class BackpackExtensionArgument implements ArgumentType<BackpackExtension
 	@Override
 	public BackpackExtension parse(StringReader reader) throws CommandSyntaxException {
 		ResourceLocation location = ResourceLocation.read(reader);
-		IForgeRegistry<BackpackExtension> registry = this.registrySupplier.get();
-		if (registry.containsKey(location) && !location.equals(registry.getKey(BackpackExtensions.NO.get()))) {
+		Registry<BackpackExtension> registry = this.registrySupplier.get();
+		ResourceLocation noExtensionKey = BackpackExtensions.REGISTRY.getKey(BackpackExtensions.NO.get());
+		if (registry.containsKey(location) && !location.equals(noExtensionKey)) {
 			return registry.getValue(location);
 		}
 		throw INVALID_BACKPACK_EXTENSION.create(location, "");
@@ -89,8 +90,10 @@ public class BackpackExtensionArgument implements ArgumentType<BackpackExtension
 	}
 	
 	private Collection<ResourceLocation> values() {
-		IForgeRegistry<BackpackExtension> registry = this.registrySupplier.get();
-		return registry.getValues().stream().filter(extension -> extension != BackpackExtensions.NO.get()).map(registry::getKey).collect(Collectors.toList());
+		Registry<BackpackExtension> registry = this.registrySupplier.get();
+		return registry.keySet().stream()
+			.filter(key -> !key.equals(BackpackExtensions.REGISTRY.getKey(BackpackExtensions.NO.get())))
+			.collect(Collectors.toList());
 	}
 	
 	//region Argument info

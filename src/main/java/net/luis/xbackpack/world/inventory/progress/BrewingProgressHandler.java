@@ -198,8 +198,8 @@ public class BrewingProgressHandler implements ProgressHandler {
 
 	@Override
 	public void deserialize(@NotNull CompoundTag tag) {
-		this.input = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(tag.getString("input").orElse("")));
-		this.fuel = tag.getInt("fuel").orElse(0);
-		this.brewTime = tag.getInt("brew_time").orElse(0);
+		this.input = BuiltInRegistries.ITEM.getValue(ResourceLocation.tryParse(tag.getStringOr("input", "")));
+		this.fuel = tag.getIntOr("fuel", 0);
+		this.brewTime = tag.getIntOr("brew_time", 0);
 	}
 }

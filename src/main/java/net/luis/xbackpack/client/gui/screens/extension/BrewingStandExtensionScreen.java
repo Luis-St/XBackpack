@@ -63,7 +63,7 @@ public class BrewingStandExtensionScreen extends AbstractExtensionScreen {
 	private void renderFuel(@NotNull GuiGraphics graphics) {
 		int fuel = Mth.clamp((18 * this.fuel + 20 - 1) / 20, 0, 18);
 		if (fuel > 0) {
-			graphics.blitSprite(FUEL_LENGTH_SPRITE, this.leftPos + this.imageWidth + 38, this.topPos + 173, fuel, 4);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, FUEL_LENGTH_SPRITE, this.leftPos + this.imageWidth + 38, this.topPos + 173, fuel, 4);
 		}
 	}
 
@@ -73,11 +73,11 @@ public class BrewingStandExtensionScreen extends AbstractExtensionScreen {
 		if (this.brewTime > 0) {
 			int progress = (int) (28.0 * (1.0 - this.brewTime / 400.0));
 			if (progress > 0) {
-				graphics.blitSprite(BREW_PROGRESS_SPRITE, 9, 28, 0, 0, this.leftPos + this.imageWidth + 75, this.topPos + 145, 9, progress);
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, BREW_PROGRESS_SPRITE, 9, 28, 0, 0, this.leftPos + this.imageWidth + 75, this.topPos + 145, 9, progress);
 			}
 			int bubbles = BUBBLES[this.brewTime / 2 % 7];
 			if (bubbles > 0) {
-				graphics.blitSprite(BUBBLES_SPRITE, 12, 29, 0, 29 - bubbles, this.leftPos + this.imageWidth + 42, this.topPos + 143 + 29 - bubbles, 12, bubbles);
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, BUBBLES_SPRITE, 12, 29, 0, 29 - bubbles, this.leftPos + this.imageWidth + 42, this.topPos + 143 + 29 - bubbles, 12, bubbles);
 			}
 		}
 	}

@@ -54,14 +54,13 @@ public class ActionButton extends AbstractButton {
 	
 	@Override
 	public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		ResourceLocation sprite = this.isHovered() ? MODIFIER_BUTTON_HIGHLIGHTED_SPRITE : MODIFIER_BUTTON_SPRITE;
-		graphics.blitSprite(sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (this.active && this.visible && this.clicked(mouseX, mouseY)) {
+		if (this.active && this.visible && this.isMouseOver(mouseX, mouseY)) {
 			if (button == 0) {
 				this.playDownSound(Minecraft.getInstance().getSoundManager());
 				this.action.accept(ClickType.LEFT);

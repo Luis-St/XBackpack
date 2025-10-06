@@ -30,6 +30,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.stream.StreamSupport;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -127,7 +129,10 @@ public enum ItemSorters implements ItemSorter {
 				if (tag != null) {
 					List<ItemStack> returnList = Lists.newArrayList();
 					for (ItemStack stack : stacks) {
-						if (negate != Objects.requireNonNull(BuiltInRegistries.ITEM.getTagOrEmpty(tag).stream().toList()).contains(stack.getItem())) {
+						List<Item> tagItems = StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tag).spliterator(), false)
+								.map(net.minecraft.core.Holder::value)
+								.toList();
+						if (negate != tagItems.contains(stack.getItem())) {
 							returnList.add(stack);
 						} else {
 							XBackpack.LOGGER.error("[Filter Failed] The filtered item list contains an item '{}' which is not subordinated to the tag '{}'", stack.getItem(), tag.location());
@@ -143,7 +148,7 @@ public enum ItemSorters implements ItemSorter {
 
 		@Nullable
 		private TagKey<Item> getTag(String searchTerm) {
-			List<TagKey<Item>> tags = BuiltInRegistries.ITEM.getTags().map(pair -> pair.getFirst()).toList();
+			List<TagKey<Item>> tags = BuiltInRegistries.ITEM.getTags().map(named -> named.key()).toList();
 			for (TagKey<Item> tag : tags) {
 				if (searchTerm.replace(" ", "_").equals(tag.location().getPath())) {
 					return tag;

@@ -36,12 +36,18 @@ import java.util.List;
  */
 
 public class CraftingContainerWrapper extends TransientCraftingContainer implements IItemHandlerModifiable {
-	
+
+	private final AbstractContainerMenu menu;
 	private final IItemHandlerModifiable itemHandler;
-	
+
 	public CraftingContainerWrapper(@NotNull AbstractContainerMenu menu, @NotNull IItemHandlerModifiable itemHandler, int width, int height) {
 		super(menu, width, height);
+		this.menu = menu;
 		this.itemHandler = itemHandler;
+	}
+
+	private AbstractContainerMenu getMenu() {
+		return this.menu;
 	}
 	
 	@Override

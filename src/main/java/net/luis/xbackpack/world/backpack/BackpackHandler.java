@@ -30,7 +30,10 @@ import net.luis.xbackpack.world.item.DynamicItemStackHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -166,11 +169,11 @@ public class BackpackHandler implements IBackpack {
 		CompoundTag tag = new CompoundTag();
 		tag.putInt("data_version", DATA_VERSION);
 		tag.put("backpack_config", this.config.serialize());
-		ValueOutput output = ValueOutput.forCompoundTag(provider);
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
 		output.putChild("backpack_handler", this.backpackHandler);
 		output.putChild("tool_handler", this.toolHandler);
 		output.putChild("crafting_handler", this.craftingHandler);
-		output.store(tag);
+		tag.merge(output.buildResult());
 		tag.put("furnace_handler", this.furnaceHandler.serialize(provider));
 		tag.put("smelt_handler", this.smeltHandler.serialize());
 		tag.put("anvil_handler", this.anvilHandler.serialize(provider));
@@ -187,23 +190,23 @@ public class BackpackHandler implements IBackpack {
 	public void deserialize(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
 		int dataVersion = 0;
 		if (tag.contains("data_version")) {
-			dataVersion = tag.getInt("data_version").orElse(0);
+			dataVersion = tag.getIntOr("data_version", 0);
 		}
 		if (dataVersion == DATA_VERSION) {
-			this.config.deserialize(tag.getCompound("backpack_config").orElse(new CompoundTag()));
-			ValueInput input = ValueInput.forCompoundTag(provider, tag);
+			this.config.deserialize(tag.getCompoundOrEmpty("backpack_config"));
+			ValueInput input = TagValueInput.create(ProblemReporter.DISCARDING, provider, tag);
 			input.child("backpack_handler").ifPresent(this.backpackHandler::deserialize);
 			input.child("tool_handler").ifPresent(this.toolHandler::deserialize);
 			input.child("crafting_handler").ifPresent(this.craftingHandler::deserialize);
-			this.furnaceHandler.deserialize(provider, tag.getCompound("furnace_handler").orElse(new CompoundTag()));
-			this.smeltHandler.deserialize(tag.getCompound("smelt_handler").orElse(new CompoundTag()));
-			this.anvilHandler.deserialize(provider, tag.getCompound("anvil_handler").orElse(new CompoundTag()));
-			this.enchantingHandler.deserialize(provider, tag.getCompound("enchanting_handler").orElse(new CompoundTag()));
-			this.stonecutterHandler.deserialize(provider, tag.getCompound("stonecutter_handler").orElse(new CompoundTag()));
-			this.brewingHandler.deserialize(provider, tag.getCompound("brewing_handler").orElse(new CompoundTag()));
-			this.brewHandler.deserialize(tag.getCompound("brew_handler").orElse(new CompoundTag()));
-			this.grindstoneHandler.deserialize(provider, tag.getCompound("grindstone_handler").orElse(new CompoundTag()));
-			this.smithingHandler.deserialize(provider, tag.getCompound("smithing_handler").orElse(new CompoundTag()));
+			this.furnaceHandler.deserialize(provider, tag.getCompoundOrEmpty("furnace_handler"));
+			this.smeltHandler.deserialize(tag.getCompoundOrEmpty("smelt_handler"));
+			this.anvilHandler.deserialize(provider, tag.getCompoundOrEmpty("anvil_handler"));
+			this.enchantingHandler.deserialize(provider, tag.getCompoundOrEmpty("enchanting_handler"));
+			this.stonecutterHandler.deserialize(provider, tag.getCompoundOrEmpty("stonecutter_handler"));
+			this.brewingHandler.deserialize(provider, tag.getCompoundOrEmpty("brewing_handler"));
+			this.brewHandler.deserialize(tag.getCompoundOrEmpty("brew_handler"));
+			this.grindstoneHandler.deserialize(provider, tag.getCompoundOrEmpty("grindstone_handler"));
+			this.smithingHandler.deserialize(provider, tag.getCompoundOrEmpty("smithing_handler"));
 		} else {
 			XBackpack.LOGGER.error("The data version has changed, to prevent the loss of the backpack inventory, the game will be terminated");
 			XBackpack.LOGGER.info("If you want to know how to update the data version, check out the linked wiki on CurseForge");

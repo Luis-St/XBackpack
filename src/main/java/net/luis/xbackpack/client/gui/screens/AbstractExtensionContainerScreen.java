@@ -29,6 +29,7 @@ import net.luis.xbackpack.world.extension.BackpackExtensionState;
 import net.luis.xbackpack.world.inventory.AbstractExtensionContainerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 import static net.luis.xbackpack.world.extension.BackpackExtensions.*;
 
@@ -49,10 +51,20 @@ import static net.luis.xbackpack.world.extension.BackpackExtensions.*;
  */
 
 public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensionContainerMenu> extends AbstractScrollableContainerScreen<T> {
-	
-	private final List<BackpackExtension> extensions = Lists.newArrayList(REGISTRY.get()).stream().filter(((Predicate<BackpackExtension>) BackpackExtension::isDisabled).negate()).toList();
+
+	private final List<BackpackExtension> extensions = initExtensions();
 	private final List<AbstractExtensionScreen> extensionScreens = Lists.newArrayList();
 	private BackpackExtension extension = NO.get();
+
+	private static List<BackpackExtension> initExtensions() {
+		List<BackpackExtension> list = new java.util.ArrayList<>();
+		for (BackpackExtension extension : REGISTRY) {
+			if (!extension.isDisabled()) {
+				list.add(extension);
+			}
+		}
+		return list;
+	}
 	
 	protected AbstractExtensionContainerScreen(@NotNull T menu, @NotNull Inventory inventory, @NotNull Component titleComponent) {
 		super(menu, inventory, titleComponent);
@@ -79,7 +91,6 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	
 	@Override
 	protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		this.renderExtensions(graphics, partialTicks, mouseX, mouseY);
 	}
 	
@@ -102,7 +113,13 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 		for (BackpackExtension extension : this.extensions) {
 			AbstractExtensionScreen extensionScreen = this.getExtensionScreen(extension);
 			if (extensionScreen != null && this.canUseExtension(extension)) {
-				extensionScreen.renderTooltip(graphics, mouseX, mouseY, this.extension == extension && this.extension != NO.get(), this.isExtensionRenderable(extension), (itemStack) -> graphics.renderTooltip(this.font, itemStack, mouseX, mouseY));
+				extensionScreen.renderTooltip(graphics, mouseX, mouseY, this.extension == extension && this.extension != NO.get(), this.isExtensionRenderable(extension), (itemStack) -> {
+					List<Component> tooltipLines = itemStack.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.EMPTY, this.minecraft.player, this.minecraft.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag.ADVANCED : net.minecraft.world.item.TooltipFlag.NORMAL);
+					List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = tooltipLines.stream()
+						.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+						.toList();
+					graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null, itemStack);
+				});
 			}
 		}
 	}

@@ -48,9 +48,11 @@ public class BackpackProvider {
 
 		@Override
 		public boolean write(@NotNull BackpackHandler handler, @NotNull ValueOutput output) {
-			CompoundTag tag = handler.serialize(output.lookup());
-			// Store the CompoundTag using the new API with a key
-			output.store("data", CompoundTag.CODEC, tag);
+			Player player = handler.getPlayer();
+			if (player != null) {
+				CompoundTag tag = handler.serialize(player.registryAccess());
+				output.store("data", CompoundTag.CODEC, tag);
+			}
 			return true;
 		}
 	};

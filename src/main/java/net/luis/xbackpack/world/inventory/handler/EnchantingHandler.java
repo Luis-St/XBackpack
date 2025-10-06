@@ -21,6 +21,9 @@ package net.luis.xbackpack.world.inventory.handler;
 import net.luis.xbackpack.world.item.DynamicItemStackHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -70,16 +73,16 @@ public class EnchantingHandler {
 	
 	public @NotNull CompoundTag serialize(HolderLookup.@NotNull Provider provider) {
 		CompoundTag tag = new CompoundTag();
-		ValueOutput output = ValueOutput.forCompoundTag(provider);
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
 		output.putChild("power_handler", this.powerHandler);
 		output.putChild("input_handler", this.inputHandler);
 		output.putChild("fuel_handler", this.fuelHandler);
-		output.store(tag);
+		tag.merge(output.buildResult());
 		return tag;
 	}
 
 	public void deserialize(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
-		ValueInput input = ValueInput.forCompoundTag(provider, tag);
+		ValueInput input = TagValueInput.create(ProblemReporter.DISCARDING, provider, tag);
 		input.child("power_handler").ifPresent(this.powerHandler::deserialize);
 		input.child("input_handler").ifPresent(this.inputHandler::deserialize);
 		input.child("fuel_handler").ifPresent(this.fuelHandler::deserialize);

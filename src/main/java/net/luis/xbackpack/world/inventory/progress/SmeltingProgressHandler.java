@@ -305,9 +305,9 @@ public class SmeltingProgressHandler implements ProgressHandler {
 	
 	@Override
 	public void deserialize(@NotNull CompoundTag tag) {
-		this.cookingProgress = tag.getInt("cooking_progress").orElse(0);
-		this.cookingTime = tag.getInt("cooking_time").orElse(0);
-		this.fuelTime = tag.getInt("fuel_time").orElse(0);
-		this.maxFuel = tag.getInt("max_fuel").orElse(0);
+		this.cookingProgress = tag.getIntOr("cooking_progress", 0);
+		this.cookingTime = tag.getIntOr("cooking_time", 0);
+		this.fuelTime = tag.getIntOr("fuel_time", 0);
+		this.maxFuel = tag.getIntOr("max_fuel", 0);
 	}
 }

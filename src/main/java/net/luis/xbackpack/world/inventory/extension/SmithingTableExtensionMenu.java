@@ -77,7 +77,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 			@Override
 			public boolean mayPlace(@NotNull ItemStack stack) {
 				return SmithingTableExtensionMenu.this.recipes.stream().anyMatch((recipe) -> {
-					return recipe.value().baseIngredient().map(ingredient -> ingredient.test(stack)).orElse(false);
+					return recipe.value().baseIngredient().test(stack);
 				});
 			}
 		});
@@ -177,7 +177,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 		return this.recipes.stream().map((recipe) -> {
 			if (recipe.value().templateIngredient().map(ingredient -> ingredient.test(stack)).orElse(false)) {
 				return 0;
-			} else if (recipe.value().baseIngredient().map(ingredient -> ingredient.test(stack)).orElse(false)) {
+			} else if (recipe.value().baseIngredient().test(stack)) {
 				return 1;
 			} else {
 				return recipe.value().additionIngredient().map(ingredient -> ingredient.test(stack)).orElse(false) ? 2 : -1;
