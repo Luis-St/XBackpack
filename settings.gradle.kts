@@ -1,3 +1,5 @@
+rootProject.name = "XBackpack"
+
 pluginManagement {
 	repositories {
 		gradlePluginPortal()

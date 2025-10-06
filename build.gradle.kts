@@ -33,7 +33,7 @@ runs {
 
 	create("server") {
 		systemProperty("neoforge.enabledGameTestNamespaces", "xbackpack")
-		programArgument("--nogui")
+		arguments("--nogui")
 	}
 }
 

@@ -34,9 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = XBackpack.MOD_ID)
 public class GatherDataEventHandler {
-	
+
 	@SubscribeEvent
-	public static void gatherData(@NotNull GatherDataEvent event) {
+	public static void gatherClientData(@NotNull GatherDataEvent.Client event) {
 		DataGenerator generator = event.getGenerator();
 		if (event.includeDev()) {
 			event.addProvider(new XBLanguageProvider(generator.getPackOutput()));

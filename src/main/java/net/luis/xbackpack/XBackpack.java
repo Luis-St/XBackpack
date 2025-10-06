@@ -18,7 +18,6 @@
 
 package net.luis.xbackpack;
 
-import net.luis.xbackpack.client.gui.screens.BackpackScreen;
 import net.luis.xbackpack.commands.XBCommandArgumentTypes;
 import net.luis.xbackpack.core.components.XBDataComponents;
 import net.luis.xbackpack.network.XBNetworkHandler;
@@ -37,7 +36,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -71,18 +69,8 @@ public class XBackpack {
 		attachments.register("backpack", () -> BackpackProvider.BACKPACK);
 		attachments.register(modEventBus);
 
-		// Register payload handlers event
-		modEventBus.register(NetworkEvents.class);
-
-		// Register menu screens event (client-side only)
-		modEventBus.addListener(this::registerMenuScreens);
-
 		XBNetworkHandler.INSTANCE.initChannel();
 		XBNetworkHandler.INSTANCE.registerPackets();
-	}
-
-	private void registerMenuScreens(@NotNull RegisterMenuScreensEvent event) {
-		event.register(XBMenuTypes.BACKPACK_MENU.get(), BackpackScreen::new);
 	}
 
 	@EventBusSubscriber(modid = MOD_ID)
