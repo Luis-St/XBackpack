@@ -35,8 +35,8 @@ import org.jetbrains.annotations.NotNull;
  */
 
 public class BackpackToolSlot extends SlotItemHandler {
-	
-	private static final ResourceLocation EMPTY_TOOL_SLOT = ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "item/empty_tool_slot");
+
+	private static final ResourceLocation EMPTY_TOOL_SLOT = ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "container/slot/empty_tool_slot");
 	
 	public BackpackToolSlot(@NotNull IItemHandler itemHandler, int index, int xPosition, int yPosition) {
 		super(itemHandler, index, xPosition, yPosition);

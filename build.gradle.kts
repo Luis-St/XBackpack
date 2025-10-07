@@ -17,6 +17,8 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println("Java: ${System.getProperty("java.version")}, JVM: ${System.getProperty("java.vm.version")} (${System.getProperty("java.vendor")}), Arch: ${System.getProperty("os.arch")}")
 
+minecraft.accessTransformers.file(rootProject.file("src/main/resources/META-INF/accesstransformer.cfg"))
+
 runs {
 	configureEach {
 		workingDirectory(project.file("run"))
@@ -56,10 +58,9 @@ repositories {
 dependencies {
 	implementation("net.neoforged:neoforge:${property("NeoForgeVersion")}")
 
-	// Jei does not have a version for 1.21.8 yet
-	/*compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-common-api:${property("JeiVersion")}")
+	compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-common-api:${property("JeiVersion")}")
 	compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge-api:${property("JeiVersion")}")
-	runtimeOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge:${property("JeiVersion")}")*/
+	runtimeOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge:${property("JeiVersion")}")
 }
 
 java {

@@ -36,8 +36,7 @@ import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
@@ -57,7 +56,7 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	private BackpackExtension extension = NO.get();
 
 	private static List<BackpackExtension> initExtensions() {
-		List<BackpackExtension> list = new java.util.ArrayList<>();
+		List<BackpackExtension> list = new ArrayList<>();
 		for (BackpackExtension extension : REGISTRY) {
 			if (!extension.isDisabled()) {
 				list.add(extension);

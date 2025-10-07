@@ -118,7 +118,7 @@ public class BackpackScreen extends AbstractModifiableContainerScreen<BackpackMe
 	@Override
 	protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
 		super.renderBg(graphics, partialTicks, mouseX, mouseY);
-		graphics.blit(BACKPACK, this.leftPos, this.topPos, 0, 0, 220, 220, 256, 256);
+		graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, BACKPACK, this.leftPos, this.topPos, 0.0F, 0.0F, 220, 220, 256, 256);
 		int scrollPosition = this.topPos + 18 + this.scrollOffset;
 		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, SCROLLER_SPRITE, this.leftPos + 198, scrollPosition, 12, 15);
 	}

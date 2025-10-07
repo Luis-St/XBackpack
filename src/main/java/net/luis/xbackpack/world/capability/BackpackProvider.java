@@ -38,7 +38,8 @@ public class BackpackProvider {
 	private static final IAttachmentSerializer<BackpackHandler> SERIALIZER = new IAttachmentSerializer<>() {
 		@Override
 		public @NotNull BackpackHandler read(@NotNull net.neoforged.neoforge.attachment.IAttachmentHolder holder, @NotNull ValueInput input) {
-			BackpackHandler handler = new BackpackHandler(null);
+			Player player = holder instanceof Player p ? p : null;
+			BackpackHandler handler = new BackpackHandler(player);
 			// Use a codec to read the compound tag data using the new API
 			input.read("data", CompoundTag.CODEC).ifPresent(tag -> {
 				handler.deserialize(input.lookup(), tag);

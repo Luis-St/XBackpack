@@ -38,7 +38,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,81 +47,21 @@ import java.util.Objects;
  *
  */
 
+// TODO: MINOR ISSUE #7: Missing vanilla 1.21.8 features that may affect mod compatibility:
+//  1. Snapback animation (for visual feedback when items return to slots)
+//  2. ItemSlotMouseAction system (for bundle interactions and item-specific mouse handling)
+//  3. onStopHovering() callback (for cleanup when mouse leaves a slot)
+//  These aren't causing current issues but consider adding for full vanilla parity
 public abstract class AbstractScrollableContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 
 	private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
 	private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
 
-	// Reflection fields for accessing private AbstractContainerScreen fields
-	private static Field draggingItemField;
-	private static Field isSplittingStackField;
-	private static Field clickedSlotField;
-	private static Field quickCraftingTypeField;
-	private static Field quickCraftingRemainderField;
-
-	static {
-		try {
-			draggingItemField = AbstractContainerScreen.class.getDeclaredField("draggingItem");
-			draggingItemField.setAccessible(true);
-			isSplittingStackField = AbstractContainerScreen.class.getDeclaredField("isSplittingStack");
-			isSplittingStackField.setAccessible(true);
-			clickedSlotField = AbstractContainerScreen.class.getDeclaredField("clickedSlot");
-			clickedSlotField.setAccessible(true);
-			quickCraftingTypeField = AbstractContainerScreen.class.getDeclaredField("quickCraftingType");
-			quickCraftingTypeField.setAccessible(true);
-			quickCraftingRemainderField = AbstractContainerScreen.class.getDeclaredField("quickCraftingRemainder");
-			quickCraftingRemainderField.setAccessible(true);
-		} catch (NoSuchFieldException e) {
-			throw new RuntimeException("Failed to access AbstractContainerScreen private fields", e);
-		}
-	}
-
 	private boolean scrolling = false;
 	protected int scrollOffset = 0;
-	
+
 	protected AbstractScrollableContainerScreen(@NotNull T menu, @NotNull Inventory inventory, @NotNull Component titleComponent) {
 		super(menu, inventory, titleComponent);
-	}
-
-	// Helper methods to access private fields via reflection
-	protected ItemStack getDraggingItem() {
-		try {
-			return (ItemStack) draggingItemField.get(this);
-		} catch (IllegalAccessException e) {
-			return ItemStack.EMPTY;
-		}
-	}
-
-	protected boolean isSplittingStack() {
-		try {
-			return isSplittingStackField.getBoolean(this);
-		} catch (IllegalAccessException e) {
-			return false;
-		}
-	}
-
-	protected Slot getClickedSlot() {
-		try {
-			return (Slot) clickedSlotField.get(this);
-		} catch (IllegalAccessException e) {
-			return null;
-		}
-	}
-
-	protected int getQuickCraftingType() {
-		try {
-			return quickCraftingTypeField.getInt(this);
-		} catch (IllegalAccessException e) {
-			return 0;
-		}
-	}
-
-	protected int getQuickCraftingRemainder() {
-		try {
-			return quickCraftingRemainderField.getInt(this);
-		} catch (IllegalAccessException e) {
-			return 0;
-		}
 	}
 	
 	@Override
@@ -130,12 +69,19 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	
 	@Override
 	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+		// TODO: CRITICAL ISSUE #1 & #2: This render() method bypasses vanilla 1.21.8 rendering pipeline
+		//  - renderBg() never gets called because we skip super.render() → backpack texture doesn't show
+		//  - Coordinate translation happens at wrong time → mouse detection doesn't match visual slot positions
+		//  SOLUTION: Refactor to override renderContents() instead, let vanilla render() handle the flow
 		//region Avoid super call
 		this.renderBackground(graphics, mouseX, mouseY, partialTicks);
 		for (Renderable widget : this.renderables) {
 			widget.render(graphics, mouseX, mouseY, partialTicks);
 		}
 		//endregion
+		// TODO: CRITICAL ISSUE #2: Matrix translation should happen AFTER super.render() in renderContents()
+		//  Vanilla does: renderContents() { super.render(); translate(); renderSlots(); }
+		//  We do: render() { translate(); renderSlots(); } → coordinate mismatch
 		graphics.pose().pushMatrix();
 		graphics.pose().translate(this.leftPos, this.topPos);
 
@@ -145,12 +91,15 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		this.renderSlotHighlightFront(graphics);
 
 		this.renderLabels(graphics, mouseX, mouseY);
+		// TODO: CRITICAL ISSUE #3: Missing z-ordering for proper layering
+		//  Vanilla calls graphics.nextStratum() before rendering carried item
+		//  Without this, items may render in wrong order relative to GUI elements
 		ItemStack draggingItem = this.getDraggingItem();
 		ItemStack mouseStack = draggingItem.isEmpty() ? this.menu.getCarried() : draggingItem;
 		if (!mouseStack.isEmpty()) {
 			int renderOffset = draggingItem.isEmpty() ? 8 : 16;
 			String count = null;
-			if (!draggingItem.isEmpty() && this.isSplittingStack()) {
+			if (!draggingItem.isEmpty() && this.getSplittingStack()) {
 				mouseStack = mouseStack.copyWithCount(Mth.ceil(mouseStack.getCount() / 2.0F));
 			} else if (this.isQuickCrafting && this.quickCraftSlots.size() > 1) {
 				mouseStack = mouseStack.copyWithCount(this.getQuickCraftingRemainder());
@@ -188,7 +137,10 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	protected void renderSlotHighlightFront(@NotNull GuiGraphics graphics) {
 		this.renderSlotHighlight(graphics, SLOT_HIGHLIGHT_FRONT_SPRITE);
 	}
-	
+
+	// TODO: MODERATE ISSUE #5: Ensure SlotRenderType.SKIP also handles inactive slots
+	//  Vanilla checks isActive() in renderSlots(), we check it there too (line 112)
+	//  But verify getSlotRenderType() implementations account for inactive slots
 	private void renderSlotHighlight(@NotNull GuiGraphics graphics, @NotNull ResourceLocation sprite) {
 		Slot slot = this.hoveredSlot;
 		if (slot != null && slot.isHighlightable() && this.getSlotRenderType(slot) != SlotRenderType.SKIP) {
@@ -197,6 +149,10 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		}
 	}
 	
+	// TODO: MODERATE ISSUE #4: Slot rendering doesn't follow vanilla 1.21.8 structure
+	//  Vanilla separates renderSlot() (backgrounds/highlights) from renderSlotContents() (item rendering)
+	//  This makes it harder to maintain and incompatible with mods that override renderSlotContents()
+	//  SOLUTION: Extract item rendering to override renderSlotContents()
 	@Override
 	protected void renderSlot(@NotNull GuiGraphics graphics, @NotNull Slot slot) {
 		int y = slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y;
@@ -204,7 +160,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		ItemStack carriedStack = this.menu.getCarried();
 		ItemStack draggingItem = this.getDraggingItem();
 		Slot clickedSlot = this.getClickedSlot();
-		boolean isSplittingStack = this.isSplittingStack();
+		boolean isSplittingStack = this.getSplittingStack();
 		boolean quickReplace = false;
 		boolean isClickedSlot = slot == clickedSlot && !draggingItem.isEmpty() && !isSplittingStack;
 		String stackCount = null;
@@ -227,6 +183,8 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 				this.quickCraftSlots.remove(slot);
 			}
 		}
+		// TODO: CRITICAL ISSUE #3: Meaningless translate(0, 0) - leftover debugging code?
+		//  Remove this unnecessary matrix operation
 		graphics.pose().pushMatrix();
 		graphics.pose().translate(0.0f, 0.0f);
 		if (slotStack.isEmpty() && slot.isActive()) {
@@ -251,6 +209,8 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		graphics.pose().popMatrix();
 	}
 	
+	// TODO: MODERATE ISSUE #6: Good - this correctly checks SlotRenderType before showing tooltip
+	//  Keep this check to maintain consistency with slot rendering logic
 	protected void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
 		if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem() && this.getSlotRenderType(this.hoveredSlot) == SlotRenderType.DEFAULT) {
 			ItemStack itemStack = this.hoveredSlot.getItem();
