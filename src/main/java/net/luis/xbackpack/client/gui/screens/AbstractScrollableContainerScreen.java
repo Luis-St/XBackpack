@@ -208,7 +208,8 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		}
 	}
 
-	public @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
+	@Override
+	protected @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < this.menu.slots.size(); ++i) {
 			Slot slot = this.menu.slots.get(i);
 			if (this.isHovering(slot, mouseX, mouseY) && this.getSlotRenderType(slot) == SlotRenderType.DEFAULT) {

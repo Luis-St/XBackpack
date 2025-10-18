@@ -151,7 +151,7 @@ public class BackpackScreen extends AbstractModifiableContainerScreen<BackpackMe
 	}
 	
 	@Override
-	public @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
+	protected @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
 		return super.getHoveredSlot(mouseX, mouseY);
 	}
 	
