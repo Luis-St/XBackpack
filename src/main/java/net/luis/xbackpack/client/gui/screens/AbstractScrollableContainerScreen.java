@@ -73,14 +73,30 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	
 	@Override
 	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		// Note: We avoid calling super.render() to implement custom scrolling behavior
-		// Instead, we manually handle the rendering pipeline
+		// Render background first (world background, blur, etc.)
 		this.renderBackground(graphics, mouseX, mouseY, partialTicks);
-		// Call renderBg() to allow subclasses to render their backgrounds/textures
+
+		// Render the container contents
+		this.renderContents(graphics, mouseX, mouseY, partialTicks);
+
+		// Render carried item on top of everything
+		this.renderCarriedItem(graphics, mouseX, mouseY);
+		// Note: Snapback animation not implemented yet
+	}
+
+	/**
+	 * Renders the main GUI content including background, slots, and labels.
+	 * Override this method to customize slot rendering for scrolling behavior.
+	 */
+	public void renderContents(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+		// Render the GUI background texture
 		this.renderBg(graphics, partialTicks, mouseX, mouseY);
+
+		// Render widgets (buttons, text fields, etc.)
 		for (Renderable widget : this.renderables) {
 			widget.render(graphics, mouseX, mouseY, partialTicks);
 		}
+
 		graphics.pose().pushMatrix();
 		graphics.pose().translate(this.leftPos, this.topPos);
 
@@ -90,7 +106,19 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		this.renderSlotHighlightFront(graphics);
 
 		this.renderLabels(graphics, mouseX, mouseY);
-		graphics.nextStratum();
+
+		// Fire NeoForge event for JEI and other mods to hook into
+		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.client.event.ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
+
+		graphics.pose().popMatrix();
+		this.renderTooltip(graphics, mouseX, mouseY);
+	}
+
+	/**
+	 * Renders the item being carried by the cursor.
+	 * Separated from main rendering for proper layering above everything else.
+	 */
+	public void renderCarriedItem(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
 		ItemStack mouseStack = this.draggingItem.isEmpty() ? this.menu.getCarried() : this.draggingItem;
 		if (!mouseStack.isEmpty()) {
 			int renderOffset = this.draggingItem.isEmpty() ? 8 : 16;
@@ -103,14 +131,12 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 					count = ChatFormatting.YELLOW + "0";
 				}
 			}
-			int x = mouseX - this.leftPos - 8;
-			int y = mouseY - this.topPos - renderOffset;
+			graphics.nextStratum();
+			int x = mouseX - 8;
+			int y = mouseY - renderOffset;
 			graphics.renderItem(mouseStack, x, y);
 			graphics.renderItemDecorations(this.font, mouseStack, x, y, count);
 		}
-
-		graphics.pose().popMatrix();
-		this.renderTooltip(graphics, mouseX, mouseY);
 	}
 	
 	protected @NotNull SlotRenderType getSlotRenderType(@NotNull Slot slot) {

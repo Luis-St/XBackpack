@@ -16,7 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
 package net.luis.xbackpack.jei;
 
 import com.google.common.collect.Lists;
@@ -29,26 +28,27 @@ import net.minecraft.client.renderer.Rect2i;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
-*/
 /**
  *
  * @author Luis-St
  *
- *//*
-
+ */
 
 public class BackpackContainerHandler implements IGuiContainerHandler<BackpackScreen> {
-	
+
 	@Override
 	public @NotNull List<Rect2i> getGuiExtraAreas(@NotNull BackpackScreen screen) {
-		LocalPlayer player = screen.getMinecraft().player;
+		LocalPlayer player = Objects.requireNonNull(screen.getMinecraft()).player;
 		if (player == null) {
 			return Lists.newArrayList();
 		}
 		if (!BackpackProvider.get(player).getConfig().getExtensionConfig().getWithState(BackpackExtensionState.UNLOCKED).isEmpty()) {
-			List<Rect2i> extraAreas = Lists.newArrayList(new Rect2i(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 30, screen.getYSize()));
+			// Extension icons area on the right side
+			List<Rect2i> extraAreas = Lists.newArrayList(new Rect2i(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 21, screen.getYSize()));
 			BackpackExtension extension = screen.getExtension();
+			// If an extension is open, add its area
 			if (extension != BackpackExtensions.NO.get()) {
 				extraAreas.add(new Rect2i(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop() + screen.getExtensionOffset(extension), extension.getImageWidth(), extension.getImageHeight()));
 			}
@@ -56,4 +56,4 @@ public class BackpackContainerHandler implements IGuiContainerHandler<BackpackSc
 		}
 		return Lists.newArrayList();
 	}
-}*/
+}
