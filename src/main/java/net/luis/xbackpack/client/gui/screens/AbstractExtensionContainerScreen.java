@@ -145,7 +145,7 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 			if (backpackExtension == extension) {
 				break;
 			}
-			offset += extension.getIconHeight() + 2;
+			offset += backpackExtension.getIconHeight() + 2;
 		}
 		return offset;
 	}
@@ -161,16 +161,19 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		// Check extension icon clicks first
 		for (BackpackExtension extension : this.extensions) {
 			if (this.isInExtension(extension, mouseX, mouseY)) {
 				this.updateExtension(extension);
-				break;
+				return true; // Consume the click event
 			}
 		}
+		// Check if the extension screen handles the click
 		AbstractExtensionScreen extensionScreen = this.getExtensionScreen(this.extension);
 		if (extensionScreen != null && extensionScreen.mouseClicked(mouseX, mouseY, button)) {
 			return true;
 		}
+		// Finally, let the parent handle slot clicks
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	

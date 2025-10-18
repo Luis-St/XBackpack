@@ -255,6 +255,11 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+		// First let parent class handle any ItemSlotMouseAction (e.g., bundle interactions)
+		if (super.mouseScrolled(mouseX, mouseY, deltaX, deltaY)) {
+			return true;
+		}
+		// Then handle our scrolling
 		this.scrollOffset = this.clampMouseScroll(deltaY);
 		return true;
 	}
