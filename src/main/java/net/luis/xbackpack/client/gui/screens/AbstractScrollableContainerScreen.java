@@ -64,14 +64,6 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	private boolean scrolling = false;
 	protected int scrollOffset = 0;
 
-	// Custom drag state tracking (since vanilla fields are private in 1.21.8)
-	@Nullable
-	private Slot clickedSlot;
-	private ItemStack draggingItem = ItemStack.EMPTY;
-	private boolean isSplittingStack;
-	private int quickCraftingType;
-	private int quickCraftingRemainder;
-
 	protected AbstractScrollableContainerScreen(@NotNull T menu, @NotNull Inventory inventory, @NotNull Component titleComponent) {
 		super(menu, inventory, titleComponent);
 	}
@@ -236,24 +228,6 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	
 	protected abstract int clampMouseScroll(double delta);
 	
-	private void recalculateQuickCraftRemaining() {
-		ItemStack itemstack = this.menu.getCarried();
-		if (!itemstack.isEmpty() && this.isQuickCrafting) {
-			if (this.quickCraftingType == 2) {
-				this.quickCraftingRemainder = itemstack.getMaxStackSize();
-			} else {
-				this.quickCraftingRemainder = itemstack.getCount();
-				for (Slot slot : this.quickCraftSlots) {
-					ItemStack itemstack1 = slot.getItem();
-					int i = itemstack1.isEmpty() ? 0 : itemstack1.getCount();
-					int j = Math.min(itemstack.getMaxStackSize(), slot.getMaxStackSize(itemstack));
-					int k = Math.min(AbstractContainerMenu.getQuickCraftPlaceCount(this.quickCraftSlots, this.quickCraftingType, itemstack) + i, j);
-					this.quickCraftingRemainder -= k - i;
-				}
-			}
-		}
-	}
-
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (button == 0 && this.isInScrollbar(mouseX, mouseY)) {
@@ -261,19 +235,13 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			this.scrollOffset = this.clampMouseMove(mouseY);
 			return true;
 		}
-		boolean result = super.mouseClicked(mouseX, mouseY, button);
-		// Track drag state from parent class behavior
-		this.updateDragState();
-		return result;
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		this.scrolling = false;
-		boolean result = super.mouseReleased(mouseX, mouseY, button);
-		// Update drag state after parent handles the release
-		this.updateDragState();
-		return result;
+		return super.mouseReleased(mouseX, mouseY, button);
 	}
 
 	@Override
@@ -282,40 +250,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			this.scrollOffset = this.clampMouseMove(mouseY);
 			return true;
 		}
-		boolean result = super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-		// Update drag state after parent handles the drag
-		this.updateDragState();
-		return result;
-	}
-
-	// Helper method to synchronize our local drag state with the parent class's private state
-	// Since we can't access the parent's private fields directly, we need to track clicks ourselves
-	private void updateDragState() {
-		// We use reflection-like behavior by tracking based on game state
-		// When touchscreen mode is active, we track dragging items
-		if (this.minecraft.options.touchscreen().get()) {
-			Slot slot = this.getHoveredSlot(this.minecraft.mouseHandler.xpos() * this.width / this.minecraft.getWindow().getScreenWidth(),
-				this.minecraft.mouseHandler.ypos() * this.height / this.minecraft.getWindow().getScreenHeight());
-
-			// Update clickedSlot based on current hover and menu state
-			if (slot != null && slot.hasItem() && this.menu.getCarried().isEmpty()) {
-				this.clickedSlot = slot;
-			} else if (this.menu.getCarried().isEmpty()) {
-				this.clickedSlot = null;
-				this.draggingItem = ItemStack.EMPTY;
-			}
-		} else {
-			// In non-touchscreen mode, track quick crafting state
-			if (this.isQuickCrafting) {
-				this.recalculateQuickCraftRemaining();
-			}
-			// Clear drag state when not actively dragging
-			if (!this.isQuickCrafting && this.menu.getCarried().isEmpty()) {
-				this.clickedSlot = null;
-				this.draggingItem = ItemStack.EMPTY;
-				this.isSplittingStack = false;
-			}
-		}
+		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
 	}
 	
 	@Override
