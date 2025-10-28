@@ -86,17 +86,18 @@ public class AnvilExtensionScreen extends AbstractExtensionScreen {
 					}
 				}
 				if (component != null) {
+					int drawColor = 0xFF000000 | color; // ensure cost text renders fully opaque
 					int x = this.leftPos + this.imageWidth + 64;
 					int y = this.topPos + 9 + this.getExtensionOffset(this.extension);
 					if (10 > this.cost) {
 						graphics.fill(x - 1, y - 2, x + this.font.width(component) + 3, y + 10, 1325400064);
-						graphics.drawString(this.font, component, x + 1, y, color);
+						graphics.drawString(this.font, component, x + 1, y, drawColor);
 					} else if (100 > this.cost) {
 						graphics.fill(x - 7, y - 2, x + this.font.width(component) - 3, y + 10, 1325400064);
-						graphics.drawString(this.font, component, x - 5, y, color);
+						graphics.drawString(this.font, component, x - 5, y, drawColor);
 					} else {
 						graphics.fill(x - 13, y - 2, x + this.font.width(component) - 9, y + 10, 1325400064);
-						graphics.drawString(this.font, component, x - 11, y, color);
+						graphics.drawString(this.font, component, x - 11, y, drawColor);
 					}
 				}
 			}
