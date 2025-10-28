@@ -26,9 +26,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author Luis-St
@@ -46,31 +43,29 @@ public class DynamicItemStackHandler extends ItemStackHandler {
 	
 	@Override
 	public void serialize(@NotNull ValueOutput output) {
+		super.serialize(output);
 		output.putInt("initial_size", this.initialSize);
-		output.putInt("stack_count", this.stacks.size());
-		List<ItemStack> stackList = new ArrayList<>(this.stacks);
-		output.store("stacks", ItemStack.CODEC.listOf(), stackList);
 	}
 
 	@Override
 	public void deserialize(@NotNull ValueInput input) {
 		int size = input.getIntOr("initial_size", this.initialSize);
-		int stackCount = input.getIntOr("stack_count", 0);
-		boolean reduced = false;
-		if (this.initialSize >= size) {
-			this.setSize(this.initialSize);
-		} else {
-			this.setSize(size);
-			reduced = true;
-		}
-		if (reduced) {
+		if (size > this.initialSize) {
 			XBackpack.LOGGER.error("DynamicItemStackHandler does currently not support shrinking of the inventory size");
 			throw new RuntimeException("Tried to deserialize to an ItemStackHandler with more slots than it was created with");
-		} else {
-			List<ItemStack> stackList = input.read("stacks", ItemStack.CODEC.listOf()).orElse(List.of());
+		}
+		super.deserialize(input);
+		input.read("stacks", ItemStack.OPTIONAL_CODEC.listOf()).ifPresent(stackList -> {
 			for (int i = 0; i < stackList.size() && i < this.stacks.size(); i++) {
 				this.stacks.set(i, stackList.get(i));
 			}
+		});
+		if (this.initialSize > this.stacks.size()) {
+			NonNullList<ItemStack> stacks = NonNullList.withSize(this.initialSize, ItemStack.EMPTY);
+			for (int i = 0; i < this.stacks.size(); i++) {
+				stacks.set(i, this.stacks.get(i));
+			}
+			this.stacks = stacks;
 		}
 		this.onLoad();
 	}
