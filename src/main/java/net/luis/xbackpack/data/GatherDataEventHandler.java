@@ -38,8 +38,6 @@ public class GatherDataEventHandler {
 	@SubscribeEvent
 	public static void gatherClientData(@NotNull GatherDataEvent.Client event) {
 		DataGenerator generator = event.getGenerator();
-		if (event.includeDev()) {
-			event.addProvider(new XBLanguageProvider(generator.getPackOutput()));
-		}
+		event.addProvider(new XBLanguageProvider(generator.getPackOutput()));
 	}
 }

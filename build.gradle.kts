@@ -1,5 +1,5 @@
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
 plugins {
 	id("idea")
@@ -22,21 +22,39 @@ minecraft.accessTransformers.file(rootProject.file("src/main/resources/META-INF/
 runs {
 	configureEach {
 		workingDirectory(project.file("run"))
-
+		
 		systemProperty("neoforge.logging.markers", "REGISTRIES")
 		systemProperty("neoforge.logging.console.level", "debug")
 		systemProperty("neoforge.enabledGameTestNamespaces", "xbackpack")
-
+		
 		modSource(project.sourceSets.main.get())
 	}
-
-	create("client") {
+	
+	create("client").apply {
 		systemProperty("neoforge.enabledGameTestNamespaces", "xbackpack")
 	}
-
-	create("server") {
+	
+	create("server").apply {
 		systemProperty("neoforge.enabledGameTestNamespaces", "xbackpack")
 		arguments("--nogui")
+	}
+	
+	create("clientData").apply {
+		arguments.addAll(
+			"--mod", "xbackpack",
+			"--all",
+			"--output", file("src/generated/resources").absolutePath,
+			"--existing", file("src/generated/resources/").absolutePath,
+		)
+	}
+	
+	create("serverData").apply {
+		arguments.addAll(
+			"--mod", "xbackpack",
+			"--all",
+			"--output", file("src/generated/resources").absolutePath,
+			"--existing", file("src/generated/resources/").absolutePath,
+		)
 	}
 }
 
@@ -57,7 +75,7 @@ repositories {
 
 dependencies {
 	implementation("net.neoforged:neoforge:${property("NeoForgeVersion")}")
-
+	
 	compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-common-api:${property("JeiVersion")}")
 	compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge-api:${property("JeiVersion")}")
 	runtimeOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge:${property("JeiVersion")}")
@@ -74,7 +92,7 @@ curseforge {
 	publications {
 		register("curseForge") {
 			projectId = "557199"
-
+			
 			artifacts.register("main") {
 				displayName = "XBackpack-$ver"
 				from(tasks.named("jar"))
@@ -119,7 +137,7 @@ val replaceProperties = mapOf(
 
 tasks.processResources {
 	inputs.properties(replaceProperties)
-
+	
 	filesMatching(resourceTargets) {
 		expand(replaceProperties)
 	}

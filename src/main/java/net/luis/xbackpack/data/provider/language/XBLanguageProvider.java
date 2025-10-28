@@ -50,7 +50,7 @@ public class XBLanguageProvider extends LanguageProvider {
 		this.add("xbackpack.backpack_extension.furnace.tooltip", "Smelting");
 		this.add("xbackpack.backpack_extension.anvil.title", "Repair");
 		this.add("xbackpack.backpack_extension.anvil.tooltip", "Repair");
-		this.add("xbackpack.backpack_extension.anvil.cost", "Cost: {0}");
+		this.add("xbackpack.backpack_extension.anvil.cost", "Cost: %s");
 		this.add("xbackpack.backpack_extension.enchantment_table.title", "Enchanting");
 		this.add("xbackpack.backpack_extension.enchantment_table.tooltip", "Enchanting");
 		this.add("xbackpack.backpack_extension.stonecutter.title", "Stonecutter");
@@ -61,13 +61,13 @@ public class XBLanguageProvider extends LanguageProvider {
 		this.add("xbackpack.backpack_extension.grindstone.tooltip", "Disenchanting");
 		this.add("xbackpack.backpack_extension.smithing_table.title", "Smithing");
 		this.add("xbackpack.backpack_extension.smithing_table.tooltip", "Smithing");
-		this.add("xbackpack.commands.arguments.extension.invalid", "Unknown extension {0}");
-		this.add("xbackpack.commands.arguments.state.invalid", "Unknown extension state {0}");
+		this.add("xbackpack.commands.arguments.extension.invalid", "Unknown extension %s");
+		this.add("xbackpack.commands.arguments.state.invalid", "Unknown extension state %s");
 		this.add("xbackpack.commands.backpack.get.failure", "Can not get the state of multiple backpack extensions");
-		this.add("xbackpack.commands.backpack.get.success", "Backpack extension {0} of player {1} has state {2}");
-		this.add("xbackpack.commands.backpack.set.failure.disabled", "Can not set the state of {0}, because the backpack extension is disabled by the mod");
-		this.add("xbackpack.commands.backpack.set.success.single", "Set successfully the state of backpack extension {0} of player {1} to state {2}");
-		this.add("xbackpack.commands.backpack.set.success.multiple", "Set successfully the state of {0} backpack extensions of player {1} to state {2}");
+		this.add("xbackpack.commands.backpack.get.success", "Backpack extension %s of player %s has state %s");
+		this.add("xbackpack.commands.backpack.set.failure.disabled", "Can not set the state of %s, because the backpack extension is disabled by the mod");
+		this.add("xbackpack.commands.backpack.set.success.single", "Set successfully the state of backpack extension %s of player %s to state %s");
+		this.add("xbackpack.commands.backpack.set.success.multiple", "Set successfully the state of %s backpack extensions of player %s to state %s");
 		this.add("xbackpack.commands.tooltip.set.success.true", "The item modification information was enabled");
 		this.add("xbackpack.commands.tooltip.set.success.false", "The item modification information was disabled");
 		this.add("xbackpack.commands.tooltip.get.success.true", "The item modification information is enabled");
