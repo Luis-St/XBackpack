@@ -18,11 +18,11 @@ jobs:
           java-version: '21'
       - name: 'Grant Permission to Gradle'
         run: chmod +x gradlew
-      - name: 'License check with Gradle'
+      - name: 'Setup Gradle'
         uses: gradle/actions/setup-gradle@v4.4.3
-        with:
-          arguments: checkLicenses
-  build:
+      - name: 'License check with Gradle'
+        run: ./gradlew checkLicenses
+  compile:
     needs: license-check
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
           java-version: '21'
       - name: 'Grant Permission to Gradle'
         run: chmod +x gradlew
-      - name: 'Build with Gradle'
+      - name: 'Setup Gradle'
         uses: gradle/actions/setup-gradle@v4.4.3
-        with:
-          arguments: build
+      - name: 'Compile with Gradle'
+        run: ./gradlew classes # Use classes instead of build to not make the test task redundant
