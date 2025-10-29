@@ -3,6 +3,7 @@ import java.util.*
 
 plugins {
 	id("idea")
+	id("net.luis.lm")
 	id("java-library")
 	id("maven-publish")
 	id("net.neoforged.gradle.userdev") version "7.0.+"
@@ -79,6 +80,21 @@ dependencies {
 	compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-common-api:${property("JeiVersion")}")
 	compileOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge-api:${property("JeiVersion")}")
 	runtimeOnly("mezz.jei:jei-${property("MinecraftVersion")}-neoforge:${property("JeiVersion")}")
+}
+
+licenseManager {
+	header = "header.txt"
+	lineEnding = LineEnding.LF
+	spacingAfterHeader = 1
+	
+	variable("year", Year.now())
+	variable("author", "Luis Staudt")
+	variable("project", rootProject.name)
+	
+	sourceSets = listOf("main", "test")
+	
+	include("**/*.java")
+	exclude("**/Main.java")
 }
 
 java {
