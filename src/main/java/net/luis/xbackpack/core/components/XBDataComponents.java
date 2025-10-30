@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ import com.mojang.serialization.Codec;
 import net.luis.xbackpack.XBackpack;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
  *
@@ -32,10 +32,10 @@ import net.minecraftforge.registries.RegistryObject;
  */
 
 public class XBDataComponents {
-	
+
 	public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, XBackpack.MOD_ID);
-	
-	public static final RegistryObject<DataComponentType<Integer>> MODIFICATION_SLOT_INDEX = DATA_COMPONENT_TYPES.register("modification_slot_index", () -> {
+
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> MODIFICATION_SLOT_INDEX = DATA_COMPONENT_TYPES.register("modification_slot_index", () -> {
 		return DataComponentType.<Integer>builder().persistent(Codec.INT).build();
 	});
 }

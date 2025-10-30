@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ import net.luis.xbackpack.world.inventory.slot.BackpackSlot;
 import net.luis.xbackpack.world.inventory.slot.MoveableSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -108,19 +107,19 @@ public class BackpackScreen extends AbstractModifiableContainerScreen<BackpackMe
 	@Override
 	protected void renderScreen(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderScreen(graphics, mouseX, mouseY, partialTicks);
-		graphics.blitSprite(RenderType::guiTextured, FILTER_SPRITE, this.leftPos + 75, this.topPos + 6, 8, 8);
-		graphics.blitSprite(RenderType::guiTextured, SORTER_SPRITE, this.leftPos + 89, this.topPos + 6, 8, 8);
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, FILTER_SPRITE, this.leftPos + 75, this.topPos + 6, 8, 8);
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, SORTER_SPRITE, this.leftPos + 89, this.topPos + 6, 8, 8);
 		if (this.menu.getFilter() == ItemFilters.NONE && this.menu.getSorter() == ItemSorters.NONE) {
-			graphics.blitSprite(RenderType::guiTextured, MERGER_SPRITE, this.leftPos + 200, this.topPos + 6, 8, 8);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, MERGER_SPRITE, this.leftPos + 200, this.topPos + 6, 8, 8);
 		}
 	}
-	
+
 	@Override
 	protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
 		super.renderBg(graphics, partialTicks, mouseX, mouseY);
-		graphics.blit(RenderType::guiTextured, BACKPACK, this.leftPos, this.topPos, 0, 0, 220, 220, 256, 256);
+		graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, BACKPACK, this.leftPos, this.topPos, 0.0F, 0.0F, 220, 220, 256, 256);
 		int scrollPosition = this.topPos + 18 + this.scrollOffset;
-		graphics.blitSprite(RenderType::guiTextured, SCROLLER_SPRITE, this.leftPos + 198, scrollPosition, 12, 15);
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, SCROLLER_SPRITE, this.leftPos + 198, scrollPosition, 12, 15);
 	}
 	
 	@Override
@@ -151,7 +150,7 @@ public class BackpackScreen extends AbstractModifiableContainerScreen<BackpackMe
 	}
 	
 	@Override
-	public @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
+	protected @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
 		return super.getHoveredSlot(mouseX, mouseY);
 	}
 	

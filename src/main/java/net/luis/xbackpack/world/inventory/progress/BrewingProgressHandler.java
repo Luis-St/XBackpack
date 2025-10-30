@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import net.luis.xbackpack.network.XBNetworkHandler;
 import net.luis.xbackpack.network.packet.extension.UpdateBrewingStandPacket;
 import net.luis.xbackpack.world.inventory.handler.CraftingFuelHandler;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -35,11 +34,10 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.brewing.PotionBrewEvent;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.brewing.PotionBrewEvent;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -110,7 +108,7 @@ public class BrewingProgressHandler implements ProgressHandler {
 			}
 			this.onPotionBrewed(this.asList());
 			if (this.player instanceof ServerPlayer player) {
-				this.playSound(player, player.serverLevel());
+				this.playSound(player, player.level());
 			}
 			ItemStack remainingStack = inputStack.getCraftingRemainder();
 			if (remainingStack.isEmpty()) {
@@ -165,7 +163,7 @@ public class BrewingProgressHandler implements ProgressHandler {
 		NonNullList<ItemStack> inputStacks = this.getInputList();
 		NonNullList<ItemStack> eventStacks = this.getInputList();
 		PotionBrewEvent.Pre event = new PotionBrewEvent.Pre(eventStacks);
-		if (MinecraftForge.EVENT_BUS.post(event)) {
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
 			boolean changed = false;
 			for (int x = 0; x < inputStacks.size(); x++) {
 				changed |= ItemStack.matches(eventStacks.get(x), inputStacks.get(x));
@@ -180,7 +178,7 @@ public class BrewingProgressHandler implements ProgressHandler {
 	}
 	
 	private void onPotionBrewed(@NotNull NonNullList<ItemStack> stacks) {
-		ForgeEventFactory.onPotionBrewed(stacks);
+		EventHooks.onPotionBrewed(stacks);
 	}
 	
 	@Override
@@ -191,16 +189,16 @@ public class BrewingProgressHandler implements ProgressHandler {
 	@Override
 	public @NotNull CompoundTag serialize() {
 		CompoundTag tag = new CompoundTag();
-		tag.putString("input", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(this.input)).toString());
+		tag.putString("input", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(this.input)).toString());
 		tag.putInt("fuel", this.fuel);
 		tag.putInt("brew_time", this.brewTime);
 		return tag;
 	}
-	
+
 	@Override
 	public void deserialize(@NotNull CompoundTag tag) {
-		this.input = ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(tag.getString("input")));
-		this.fuel = tag.getInt("fuel");
-		this.brewTime = tag.getInt("brew_time");
+		this.input = BuiltInRegistries.ITEM.getValue(ResourceLocation.tryParse(tag.getStringOr("input", "")));
+		this.fuel = tag.getIntOr("fuel", 0);
+		this.brewTime = tag.getIntOr("brew_time", 0);
 	}
 }

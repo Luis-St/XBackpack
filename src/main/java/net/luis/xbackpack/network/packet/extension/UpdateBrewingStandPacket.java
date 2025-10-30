@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,41 +18,43 @@
 
 package net.luis.xbackpack.network.packet.extension;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.XBClientPacketHandler;
 import net.luis.xbackpack.network.NetworkPacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.fml.DistExecutor;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public class UpdateBrewingStandPacket implements NetworkPacket {
-	
-	private final int fuel;
-	private final int brewTime;
-	
-	public UpdateBrewingStandPacket(int fuel, int brewTime) {
-		this.fuel = fuel;
-		this.brewTime = brewTime;
-	}
-	
-	public UpdateBrewingStandPacket(@NotNull FriendlyByteBuf buffer) {
-		this.fuel = buffer.readInt();
-		this.brewTime = buffer.readInt();
-	}
-	
+/**
+ *
+ * @author Luis-St
+ *
+ */
+
+public record UpdateBrewingStandPacket(int fuel, int brewTime) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateBrewingStandPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_brewing_stand"));
+
+	public static final StreamCodec<ByteBuf, UpdateBrewingStandPacket> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.VAR_INT, UpdateBrewingStandPacket::fuel,
+		ByteBufCodecs.VAR_INT, UpdateBrewingStandPacket::brewTime,
+		UpdateBrewingStandPacket::new
+	);
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.fuel);
-		buffer.writeInt(this.brewTime);
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-				XBClientPacketHandler.updateBrewingStandExtension(this.fuel, this.brewTime);
-			});
+			XBClientPacketHandler.updateBrewingStandExtension(this.fuel, this.brewTime);
 		});
 	}
 }

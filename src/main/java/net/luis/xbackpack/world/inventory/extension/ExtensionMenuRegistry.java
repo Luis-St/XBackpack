@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import net.luis.xbackpack.world.extension.BackpackExtension;
 import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.luis.xbackpack.world.inventory.AbstractExtensionContainerMenu;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -49,7 +49,7 @@ public class ExtensionMenuRegistry {
 	 */
 	public static void registerOverride(@NotNull BackpackExtension extension, @NotNull String modId, @NotNull ExtensionMenuFactory factory) {
 		if (EXTENSION_FACTORIES.containsKey(extension)) {
-			XBackpack.LOGGER.error("Fail to register Extension Menu override for Mod {} of type {}, since there is already a Extension Menu present", modId, BackpackExtensions.REGISTRY.get().getKey(extension));
+			XBackpack.LOGGER.error("Fail to register Extension Menu override for Mod {} of type {}, since there is already a Extension Menu present", modId, BackpackExtensions.REGISTRY.getKey(extension));
 		} else {
 			EXTENSION_FACTORIES.put(extension, factory);
 		}

@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,20 +22,19 @@ import com.google.common.collect.Lists;
 import net.luis.xbackpack.util.Util;
 import net.luis.xbackpack.world.item.CustomBackpackFilterItem;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DamageResistant;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -76,7 +75,7 @@ public enum ItemFilters implements ItemFilter {
 	NAMESPACE_SEARCH("namespace_search", false) {
 		@Override
 		protected boolean canKeepItem(@NotNull ItemStack stack, @NotNull String searchTerm) {
-			String namespace = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem())).getNamespace().trim().toLowerCase();
+			String namespace = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).getNamespace().trim().toLowerCase();
 			if (searchTerm.isEmpty()) {
 				return true;
 			} else if (!searchTerm.startsWith("@")) {
@@ -109,13 +108,16 @@ public enum ItemFilters implements ItemFilter {
 				if (tag == null) {
 					return false;
 				} else {
-					return Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(tag).contains(stack.getItem());
+					List<Item> tagItems = StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tag).spliterator(), false)
+							.map(net.minecraft.core.Holder::value)
+							.toList();
+					return tagItems.contains(stack.getItem());
 				}
 			}
 		}
-		
+
 		private @Nullable TagKey<Item> getTag(String searchTerm) {
-			List<TagKey<Item>> tags = Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).stream().filter(ITag::isBound).filter((tag) -> !tag.isEmpty()).map(ITag::getKey).toList();
+			List<TagKey<Item>> tags = BuiltInRegistries.ITEM.getTags().map(named -> named.key()).toList();
 			for (TagKey<Item> tag : tags) {
 				if (searchTerm.replace(" ", "_").equals(tag.location().getPath())) {
 					return tag;
@@ -213,14 +215,14 @@ public enum ItemFilters implements ItemFilter {
 		@Override
 		protected boolean canKeepItem(@NotNull ItemStack stack, @NotNull String searchTerm) {
 			Item item = stack.getItem();
-			return this.checkCustom(stack, CustomBackpackFilterItem::isWeapon) || item instanceof SwordItem || item instanceof BowItem || item instanceof CrossbowItem;
+			return this.checkCustom(stack, CustomBackpackFilterItem::isWeapon) || stack.is(ItemTags.SWORDS) || item instanceof BowItem || item instanceof CrossbowItem;
 		}
 	},
 	TOOL("tool") {
 		@Override
 		protected boolean canKeepItem(@NotNull ItemStack stack, @NotNull String searchTerm) {
 			Item item = stack.getItem();
-			return this.checkCustom(stack, CustomBackpackFilterItem::isTool) || item instanceof DiggerItem || item instanceof FishingRodItem || item instanceof FlintAndSteelItem || item instanceof CompassItem || item == Items.CLOCK;
+			return this.checkCustom(stack, CustomBackpackFilterItem::isTool) || stack.has(DataComponents.TOOL) || item instanceof FishingRodItem || item instanceof FlintAndSteelItem || item instanceof CompassItem || item == Items.CLOCK;
 		}
 	},
 	ARMOR("armor") {

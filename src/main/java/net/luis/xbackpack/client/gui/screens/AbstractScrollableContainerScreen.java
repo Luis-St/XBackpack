@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,11 @@
 
 package net.luis.xbackpack.client.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
 import net.luis.xbackpack.world.inventory.slot.MoveableSlot;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -35,11 +30,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.ForgeEventFactoryClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  *
@@ -47,14 +41,23 @@ import java.util.Objects;
  *
  */
 
+/**
+ * Abstract base class for scrollable container screens.
+ *
+ * Note: Some vanilla 1.21.8 features are not yet implemented:
+ * - Snapback animation (visual feedback when items return to slots)
+ * - ItemSlotMouseAction system (bundle interactions and item-specific mouse handling)
+ * - onStopHovering() callback (cleanup when mouse leaves a slot)
+ * These can be added in the future for full vanilla parity if needed.
+ */
 public abstract class AbstractScrollableContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
-	
+
 	private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
 	private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
-	
+
 	private boolean scrolling = false;
 	protected int scrollOffset = 0;
-	
+
 	protected AbstractScrollableContainerScreen(@NotNull T menu, @NotNull Inventory inventory, @NotNull Component titleComponent) {
 		super(menu, inventory, titleComponent);
 	}
@@ -64,28 +67,52 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	
 	@Override
 	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		//region Avoid super call
+		// Render background first (world background, blur, etc.)
 		this.renderBackground(graphics, mouseX, mouseY, partialTicks);
+
+		// Render the container contents
+		this.renderContents(graphics, mouseX, mouseY, partialTicks);
+
+		// Render carried item on top of everything
+		this.renderCarriedItem(graphics, mouseX, mouseY);
+		// Note: Snapback animation not implemented yet
+	}
+
+	/**
+	 * Renders the main GUI content including background, slots, and labels.
+	 * Override this method to customize slot rendering for scrolling behavior.
+	 */
+	public void renderContents(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+		// Render the GUI background texture
+		this.renderBg(graphics, partialTicks, mouseX, mouseY);
+
+		// Render widgets (buttons, text fields, etc.)
 		for (Renderable widget : this.renderables) {
 			widget.render(graphics, mouseX, mouseY, partialTicks);
 		}
-		ForgeEventFactoryClient.onContainerRenderBackground(this, graphics, mouseX, mouseY);
-		//endregion
-		RenderSystem.disableDepthTest();
-		graphics.pose().pushPose();
-		graphics.pose().translate(this.leftPos, this.topPos, 0.0F);
-		
-		Slot slot = this.hoveredSlot;
+
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(this.leftPos, this.topPos);
+
 		this.hoveredSlot = this.getHoveredSlot(mouseX, mouseY);
 		this.renderSlotHighlightBack(graphics);
 		this.renderSlots(graphics);
 		this.renderSlotHighlightFront(graphics);
-		if (slot != null && slot != this.hoveredSlot) {
-			this.onStopHovering(slot);
-		}
-		
+
 		this.renderLabels(graphics, mouseX, mouseY);
-		ForgeEventFactoryClient.onContainerRenderForeground(this, graphics, mouseX, mouseY);
+
+		// Fire NeoForge event for JEI and other mods to hook into
+		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.client.event.ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
+
+		graphics.pose().popMatrix();
+		this.renderTooltip(graphics, mouseX, mouseY);
+	}
+
+	/**
+	 * Renders the item being carried by the cursor.
+	 * Separated from main rendering for proper layering above everything else.
+	 */
+	public void renderCarriedItem(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
 		ItemStack mouseStack = this.draggingItem.isEmpty() ? this.menu.getCarried() : this.draggingItem;
 		if (!mouseStack.isEmpty()) {
 			int renderOffset = this.draggingItem.isEmpty() ? 8 : 16;
@@ -98,22 +125,12 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 					count = ChatFormatting.YELLOW + "0";
 				}
 			}
-			this.renderFloatingItem(graphics, mouseStack, mouseX - this.leftPos - 8, mouseY - this.topPos - renderOffset, count);
+			graphics.nextStratum();
+			int x = mouseX - 8;
+			int y = mouseY - renderOffset;
+			graphics.renderItem(mouseStack, x, y);
+			graphics.renderItemDecorations(this.font, mouseStack, x, y, count);
 		}
-		if (!this.snapbackItem.isEmpty()) {
-			float f = (float) (Util.getMillis() - this.snapbackTime) / 100.0F;
-			if (f >= 1.0F) {
-				f = 1.0F;
-				this.snapbackItem = ItemStack.EMPTY;
-			}
-			int x = this.snapbackStartX + (int) ((float) this.snapbackEnd.x - this.snapbackStartX * f);
-			int y = this.snapbackStartY + (int) ((float) this.snapbackEnd.y - this.snapbackStartY * f);
-			this.renderFloatingItem(graphics, this.snapbackItem, x, y, null);
-		}
-		
-		graphics.pose().popPose();
-		RenderSystem.enableDepthTest();
-		this.renderTooltip(graphics, mouseX, mouseY);
 	}
 	
 	protected @NotNull SlotRenderType getSlotRenderType(@NotNull Slot slot) {
@@ -129,31 +146,34 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		}
 	}
 	
-	@Override
 	protected void renderSlotHighlightBack(@NotNull GuiGraphics graphics) {
 		this.renderSlotHighlight(graphics, SLOT_HIGHLIGHT_BACK_SPRITE);
 	}
-	
-	@Override
+
 	protected void renderSlotHighlightFront(@NotNull GuiGraphics graphics) {
 		this.renderSlotHighlight(graphics, SLOT_HIGHLIGHT_FRONT_SPRITE);
 	}
-	
+
+	// Note: SlotRenderType.SKIP handling for inactive slots
+	// We check both isActive() and SlotRenderType.SKIP to ensure proper slot visibility
 	private void renderSlotHighlight(@NotNull GuiGraphics graphics, @NotNull ResourceLocation sprite) {
 		Slot slot = this.hoveredSlot;
 		if (slot != null && slot.isHighlightable() && this.getSlotRenderType(slot) != SlotRenderType.SKIP) {
 			int y = slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y;
-			graphics.blitSprite(RenderType::guiTexturedOverlay, sprite, slot.x - 4, y - 4, 24, 24);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, slot.x - 4, y - 4, 24, 24);
 		}
 	}
 	
+	// Note: Custom slot rendering for scrollable containers
+	// Vanilla 1.21.8 separates renderSlot() and renderSlotContents(), but we combine them here
+	// for custom scrolling behavior. Future improvement: consider splitting for better mod compatibility
 	@Override
 	protected void renderSlot(@NotNull GuiGraphics graphics, @NotNull Slot slot) {
 		int y = slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y;
 		ItemStack slotStack = slot.getItem();
 		ItemStack carriedStack = this.menu.getCarried();
 		boolean quickReplace = false;
-		boolean clickedSlot = slot == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
+		boolean isClickedSlot = slot == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
 		String stackCount = null;
 		if (slot == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !slotStack.isEmpty()) {
 			slotStack = slotStack.copyWithCount(slotStack.getCount() / 2);
@@ -172,20 +192,17 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 				slotStack = carriedStack.copyWithCount(craftPlaceCount);
 			} else {
 				this.quickCraftSlots.remove(slot);
-				this.recalculateQuickCraftRemaining();
 			}
 		}
-		graphics.pose().pushPose();
-		graphics.pose().translate(0.0, 0.0, 100.0);
+		graphics.pose().pushMatrix();
 		if (slotStack.isEmpty() && slot.isActive()) {
-			Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
-			if (pair != null) {
-				TextureAtlasSprite atlasSprite = Objects.requireNonNull(this.minecraft).getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-				graphics.blitSprite(RenderType::guiTextured, atlasSprite, slot.x, y, 16, 16);
-				clickedSlot = true;
+			ResourceLocation icon = slot.getNoItemIcon();
+			if (icon != null) {
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, icon, slot.x, y, 16, 16);
+				isClickedSlot = true;
 			}
 		}
-		if (!clickedSlot) {
+		if (!isClickedSlot) {
 			if (quickReplace) {
 				graphics.fill(slot.x, y, slot.x + 16, y + 16, -2130706433);
 			}
@@ -197,18 +214,22 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 			}
 			graphics.renderItemDecorations(this.font, slotStack, slot.x, y, stackCount);
 		}
-		graphics.pose().popPose();
+		graphics.pose().popMatrix();
 	}
 	
-	@Override
 	protected void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
 		if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem() && this.getSlotRenderType(this.hoveredSlot) == SlotRenderType.DEFAULT) {
-			graphics.renderTooltip(this.font, this.hoveredSlot.getItem(), mouseX, mouseY);
+			ItemStack itemStack = this.hoveredSlot.getItem();
+			List<Component> tooltipLines = itemStack.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.EMPTY, this.minecraft.player, this.minecraft.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag.ADVANCED : net.minecraft.world.item.TooltipFlag.NORMAL);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = tooltipLines.stream()
+				.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+				.toList();
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null, itemStack);
 		}
 	}
-	
+
 	@Override
-	public @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
+	protected @Nullable Slot getHoveredSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < this.menu.slots.size(); ++i) {
 			Slot slot = this.menu.slots.get(i);
 			if (this.isHovering(slot, mouseX, mouseY) && this.getSlotRenderType(slot) == SlotRenderType.DEFAULT) {
@@ -243,7 +264,7 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 		this.scrolling = false;
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
-	
+
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (button == 0 && this.scrolling) {
@@ -255,11 +276,15 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+		// First let parent class handle any ItemSlotMouseAction (e.g., bundle interactions)
+		if (super.mouseScrolled(mouseX, mouseY, deltaX, deltaY)) {
+			return true;
+		}
+		// Then handle our scrolling
 		this.scrollOffset = this.clampMouseScroll(deltaY);
 		return true;
 	}
-	
-	@Override
+
 	public boolean isHovering(@NotNull Slot slot, double mouseX, double mouseY) {
 		return this.isHovering(slot.x, slot instanceof MoveableSlot moveableSlot ? moveableSlot.getY(this.scrollOffset) : slot.y, 16, 16, mouseX, mouseY);
 	}

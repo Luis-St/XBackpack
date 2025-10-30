@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@ package net.luis.xbackpack.world.inventory.handler;
 import net.luis.xbackpack.world.item.DynamicItemStackHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.*;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -60,15 +62,18 @@ public class SmeltingHandler extends CraftingFuelHandler {
 	@Override
 	public @NotNull CompoundTag serialize(HolderLookup.@NotNull Provider provider) {
 		CompoundTag tag = super.serialize(provider);
-		tag.put("input_storage_handler", this.inputStorageHandler.serializeNBT(provider));
-		tag.put("result_storage_handler", this.resultStorageHandler.serializeNBT(provider));
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+		output.putChild("input_storage_handler", this.inputStorageHandler);
+		output.putChild("result_storage_handler", this.resultStorageHandler);
+		tag.merge(output.buildResult());
 		return tag;
 	}
-	
+
 	@Override
 	public void deserialize(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
 		super.deserialize(provider, tag);
-		this.inputStorageHandler.deserializeNBT(provider, tag.getCompound("input_storage_handler"));
-		this.resultStorageHandler.deserializeNBT(provider, tag.getCompound("result_storage_handler"));
+		ValueInput input = TagValueInput.create(ProblemReporter.DISCARDING, provider, tag);
+		input.child("input_storage_handler").ifPresent(this.inputStorageHandler::deserialize);
+		input.child("result_storage_handler").ifPresent(this.resultStorageHandler::deserialize);
 	}
 }

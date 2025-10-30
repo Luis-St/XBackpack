@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,9 @@ package net.luis.xbackpack.data;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.data.provider.language.XBLanguageProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,14 +32,12 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@EventBusSubscriber(modid = XBackpack.MOD_ID, bus = Bus.MOD)
+@EventBusSubscriber(modid = XBackpack.MOD_ID)
 public class GatherDataEventHandler {
-	
+
 	@SubscribeEvent
-	public static void gatherData(@NotNull GatherDataEvent event) {
+	public static void gatherClientData(@NotNull GatherDataEvent.Client event) {
 		DataGenerator generator = event.getGenerator();
-		if (event.includeDev()) {
-			generator.addProvider(event.includeClient(), new XBLanguageProvider(generator.getPackOutput()));
-		}
+		event.addProvider(new XBLanguageProvider(generator.getPackOutput()));
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@ import net.luis.xbackpack.world.extension.BackpackExtension;
 import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.luis.xbackpack.world.inventory.handler.CraftingHandler;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -59,7 +58,7 @@ public class GrindstoneExtensionScreen extends AbstractExtensionScreen {
 		if (open) {
 			ItemStackHandler handler = this.handler.getInputHandler();
 			if ((!handler.getStackInSlot(0).isEmpty() || !handler.getStackInSlot(1).isEmpty()) && this.handler.getResultHandler().getStackInSlot(0).isEmpty()) {
-				graphics.blitSprite(RenderType::guiTextured, ERROR_SPRITE, this.leftPos + this.imageWidth + 60, this.topPos + 184, 22, 21);
+				graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, ERROR_SPRITE, this.leftPos + this.imageWidth + 60, this.topPos + 184, 22, 21);
 			}
 		}
 	}

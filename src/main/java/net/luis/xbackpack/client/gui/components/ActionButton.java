@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,11 @@
 
 package net.luis.xbackpack.client.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.luis.xbackpack.XBackpack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -54,14 +52,13 @@ public class ActionButton extends AbstractButton {
 	
 	@Override
 	public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		ResourceLocation sprite = this.isHovered() ? MODIFIER_BUTTON_HIGHLIGHTED_SPRITE : MODIFIER_BUTTON_SPRITE;
-		graphics.blitSprite(RenderType::guiTextured, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (this.active && this.visible && this.clicked(mouseX, mouseY)) {
+		if (this.active && this.visible && this.isMouseOver(mouseX, mouseY)) {
 			if (button == 0) {
 				this.playDownSound(Minecraft.getInstance().getSoundManager());
 				this.action.accept(ClickType.LEFT);

@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,10 @@ package net.luis.xbackpack.event.fml;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.gui.screens.BackpackScreen;
 import net.luis.xbackpack.world.inventory.XBMenuTypes;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,11 +33,11 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@EventBusSubscriber(modid = XBackpack.MOD_ID, bus = Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = XBackpack.MOD_ID, value = Dist.CLIENT)
 public class ClientSetupEventHandler {
-	
+
 	@SubscribeEvent
-	public static void clientSetup(@NotNull FMLClientSetupEvent event) {
-		event.enqueueWork(() -> MenuScreens.register(XBMenuTypes.BACKPACK_MENU.get(), BackpackScreen::new));
+	public static void registerMenuScreens(@NotNull RegisterMenuScreensEvent event) {
+		event.register(XBMenuTypes.BACKPACK_MENU.get(), BackpackScreen::new);
 	}
 }

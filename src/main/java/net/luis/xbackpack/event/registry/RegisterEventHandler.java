@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ package net.luis.xbackpack.event.registry;
 
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.server.commands.BackpackCommand;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-@Mod.EventBusSubscriber(modid = XBackpack.MOD_ID)
+@EventBusSubscriber(modid = XBackpack.MOD_ID)
 public class RegisterEventHandler {
 	
 	@SubscribeEvent

@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 			@Override
 			public boolean mayPlace(@NotNull ItemStack stack) {
 				return SmithingTableExtensionMenu.this.recipes.stream().anyMatch((recipe) -> {
-					return recipe.value().baseIngredient().map(ingredient -> ingredient.test(stack)).orElse(false);
+					return recipe.value().baseIngredient().test(stack);
 				});
 			}
 		});
@@ -113,7 +113,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 	}
 	
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
-		stack.onCraftedBy(player.level(), player, stack.getCount());
+		stack.onCraftedBy(player, stack.getCount());
 		if (this.selectedRecipe != null) {
 			player.awardRecipes(Collections.singleton(this.selectedRecipe));
 		}
@@ -121,7 +121,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 		this.shrinkStackInSlot(1);
 		this.shrinkStackInSlot(2);
 		if (player instanceof ServerPlayer serverPlayer) {
-			this.playSound(serverPlayer, serverPlayer.serverLevel());
+			this.playSound(serverPlayer, serverPlayer.level());
 		}
 	}
 	
@@ -177,7 +177,7 @@ public class SmithingTableExtensionMenu extends AbstractExtensionMenu {
 		return this.recipes.stream().map((recipe) -> {
 			if (recipe.value().templateIngredient().map(ingredient -> ingredient.test(stack)).orElse(false)) {
 				return 0;
-			} else if (recipe.value().baseIngredient().map(ingredient -> ingredient.test(stack)).orElse(false)) {
+			} else if (recipe.value().baseIngredient().test(stack)) {
 				return 1;
 			} else {
 				return recipe.value().additionIngredient().map(ingredient -> ingredient.test(stack)).orElse(false) ? 2 : -1;

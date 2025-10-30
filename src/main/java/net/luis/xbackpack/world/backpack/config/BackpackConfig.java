@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ public class BackpackConfig {
 	}
 	
 	public void deserialize(@NotNull CompoundTag tag) {
-		this.extensionConfig.deserialize(tag.getCompound("extension_config"));
+		this.extensionConfig.deserialize(tag.getCompoundOrEmpty("extension_config"));
 	}
 	//endregion
 }

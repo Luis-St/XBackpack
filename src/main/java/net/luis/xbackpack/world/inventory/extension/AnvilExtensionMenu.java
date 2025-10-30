@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.*;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AnvilUpdateEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -119,7 +119,7 @@ public class AnvilExtensionMenu extends AbstractExtensionMenu {
 				this.handler.getInputHandler().setStackInSlot(1, ItemStack.EMPTY);
 			}
 			this.cost = 0;
-			this.playSound(serverPlayer, serverPlayer.serverLevel());
+			this.playSound(serverPlayer, serverPlayer.level());
 		}
 		this.menu.broadcastChanges();
 		this.broadcastChanges();
@@ -241,9 +241,10 @@ public class AnvilExtensionMenu extends AbstractExtensionMenu {
 					}
 				}
 			}
-			if (enchantedBook && !resultStack.isBookEnchantable(rightStack)) {
-				resultStack = ItemStack.EMPTY;
-			}
+			// isBookEnchantable was removed - the check is now integrated into vanilla logic
+			// if (enchantedBook && !resultStack.isBookEnchantable(rightStack)) {
+			//	resultStack = ItemStack.EMPTY;
+			// }
 			this.cost = repairCost + enchantCost;
 			if (enchantCost <= 0) {
 				resultStack = ItemStack.EMPTY;
@@ -275,14 +276,14 @@ public class AnvilExtensionMenu extends AbstractExtensionMenu {
 	}
 	
 	private boolean onAnvilUpdate(@NotNull ItemStack leftStack, @NotNull ItemStack rightStack, int repairCost) {
-		AnvilUpdateEvent event = new AnvilUpdateEvent(leftStack, rightStack, leftStack.getDisplayName().getString(), repairCost, this.player);
-		if (MinecraftForge.EVENT_BUS.post(event)) {
+		AnvilUpdateEvent event = new AnvilUpdateEvent(leftStack, rightStack, leftStack.getDisplayName().getString(), ItemStack.EMPTY, repairCost, 0, this.player);
+		if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
 			return false;
 		} else if (event.getOutput().isEmpty()) {
 			return true;
 		}
 		this.handler.getResultHandler().setStackInSlot(0, event.getOutput());
-		this.cost = (int) event.getCost();
+		this.cost = event.getXpCost();
 		this.repairItemCountCost = event.getMaterialCost();
 		this.broadcastChanges();
 		return false;

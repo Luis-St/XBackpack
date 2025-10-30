@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,19 +21,17 @@ package net.luis.xbackpack.world.inventory.modifier.sorter;
 import com.google.common.collect.Lists;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.util.Util;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 /**
  *
@@ -95,7 +93,7 @@ public enum ItemSorters implements ItemSorter {
 					Iterator<ItemStack> iterator = stacks.iterator();
 					while (iterator.hasNext()) {
 						ItemStack stack = iterator.next();
-						String namespace = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem())).getNamespace();
+						String namespace = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).getNamespace();
 						if (negate != namespace.equals(string)) {
 							equalsList.add(stack);
 							iterator.remove();
@@ -109,9 +107,9 @@ public enum ItemSorters implements ItemSorter {
 							XBackpack.LOGGER.error("[Filter Failed] The filtered item list contains an item with the namespace '{}' that does not match the search term '{}' in any form", namespace, string);
 						}
 					}
-					equalsList.sort(Comparator.comparing(stack -> Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem())).getNamespace()));
-					startsList.sort(Comparator.comparing(stack -> Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem())).getNamespace()));
-					containsList.sort(Comparator.comparing(stack -> Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem())).getNamespace()));
+					equalsList.sort(Comparator.comparing(stack -> Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).getNamespace()));
+					startsList.sort(Comparator.comparing(stack -> Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).getNamespace()));
+					containsList.sort(Comparator.comparing(stack -> Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).getNamespace()));
 					return Stream.of(equalsList, startsList, containsList).flatMap(List::stream).collect(Collectors.toList());
 				}
 				return stacks;
@@ -128,7 +126,10 @@ public enum ItemSorters implements ItemSorter {
 				if (tag != null) {
 					List<ItemStack> returnList = Lists.newArrayList();
 					for (ItemStack stack : stacks) {
-						if (negate != Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(tag).contains(stack.getItem())) {
+						List<Item> tagItems = StreamSupport.stream(BuiltInRegistries.ITEM.getTagOrEmpty(tag).spliterator(), false)
+								.map(net.minecraft.core.Holder::value)
+								.toList();
+						if (negate != tagItems.contains(stack.getItem())) {
 							returnList.add(stack);
 						} else {
 							XBackpack.LOGGER.error("[Filter Failed] The filtered item list contains an item '{}' which is not subordinated to the tag '{}'", stack.getItem(), tag.location());
@@ -141,10 +142,10 @@ public enum ItemSorters implements ItemSorter {
 			XBackpack.LOGGER.info("An attempt is made to apply a search term sorter to an empty search term");
 			return stacks;
 		}
-		
+
 		@Nullable
 		private TagKey<Item> getTag(String searchTerm) {
-			List<TagKey<Item>> tags = Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).stream().filter(ITag::isBound).filter((tag) -> !tag.isEmpty()).map(ITag::getKey).toList();
+			List<TagKey<Item>> tags = BuiltInRegistries.ITEM.getTags().map(named -> named.key()).toList();
 			for (TagKey<Item> tag : tags) {
 				if (searchTerm.replace(" ", "_").equals(tag.location().getPath())) {
 					return tag;

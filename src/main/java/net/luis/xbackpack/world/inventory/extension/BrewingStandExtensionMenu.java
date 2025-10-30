@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.*;
-import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class BrewingStandExtensionMenu extends AbstractExtensionMenu {
 			consumer.accept(new ExtensionSlot(this, this.handler.getResultHandler(), i, 254 + i * 23, i == 1 ? 187 : 180) {
 				@Override
 				public boolean mayPlace(@NotNull ItemStack stack) {
-					return BrewingStandExtensionMenu.this.potionBrewing.isValidInput(stack);
+					return BrewingStandExtensionMenu.this.potionBrewing.isInput(stack);
 				}
 				
 				@Override
@@ -103,7 +102,7 @@ public class BrewingStandExtensionMenu extends AbstractExtensionMenu {
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 		Optional<Holder<Potion>> optional = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).potion();
 		if (optional.isPresent() && player instanceof ServerPlayer serverPlayer) {
-			ForgeEventFactory.onPlayerBrewedPotion(player, stack);
+			net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.brewing.PlayerBrewedPotionEvent(player, stack));
 			CriteriaTriggers.BREWED_POTION.trigger(serverPlayer, optional.get());
 		}
 	}
@@ -115,7 +114,7 @@ public class BrewingStandExtensionMenu extends AbstractExtensionMenu {
 				return this.menu.moveItemStackTo(slotStack, 947, 948); // into fuel
 			} else if (this.potionBrewing.isIngredient(slotStack)) {
 				return this.menu.moveItemStackTo(slotStack, 946, 947); // into input
-			} else if (this.potionBrewing.isValidInput(slotStack)) {
+			} else if (this.potionBrewing.isInput(slotStack)) {
 				return this.menu.moveItemStackTo(slotStack, 948, 451); // into result
 			}
 		} else if (950 >= index && index >= 946) { // from extension

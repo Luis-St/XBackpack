@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.luis.xbackpack.world.inventory.handler.CraftingHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -81,12 +80,12 @@ public class StonecutterExtensionScreen extends AbstractExtensionScreen {
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {
 		if (open) {
 			ResourceLocation sprite = this.isScrollBarActive() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
-			graphics.blitSprite(RenderType::guiTextured, sprite, this.leftPos + this.imageWidth + 72, this.topPos + 143 + (int) (39.0 * this.scrollOffset), 12, 15);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, this.leftPos + this.imageWidth + 72, this.topPos + 143 + (int) (39.0 * this.scrollOffset), 12, 15);
 			this.renderButtons(graphics, mouseX, mouseY);
 			this.renderRecipes(graphics);
 		}
 	}
-	
+
 	private void renderButtons(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
 		int maxRecipes = this.startIndex + 12;
 		for (int index = this.startIndex; index < maxRecipes && index < this.recipesForInput.size(); ++index) {
@@ -99,7 +98,7 @@ public class StonecutterExtensionScreen extends AbstractExtensionScreen {
 			} else if (mouseX >= x && x + 16 > mouseX && mouseY + 1 >= y && y + 18 > mouseY + 1) {
 				sprite = RECIPE_HIGHLIGHTED_SPRITE;
 			}
-			graphics.blitSprite(RenderType::guiTextured, sprite, x, y - 1, 16, 18);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, sprite, x, y - 1, 16, 18);
 		}
 	}
 	

@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,11 @@
 
 package net.luis.xbackpack.world.inventory.wrapper;
 
-import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,12 +35,18 @@ import java.util.List;
  */
 
 public class CraftingContainerWrapper extends TransientCraftingContainer implements IItemHandlerModifiable {
-	
+
+	private final AbstractContainerMenu menu;
 	private final IItemHandlerModifiable itemHandler;
-	
+
 	public CraftingContainerWrapper(@NotNull AbstractContainerMenu menu, @NotNull IItemHandlerModifiable itemHandler, int width, int height) {
 		super(menu, width, height);
+		this.menu = menu;
 		this.itemHandler = itemHandler;
+	}
+
+	private AbstractContainerMenu getMenu() {
+		return this.menu;
 	}
 	
 	@Override
@@ -57,15 +62,15 @@ public class CraftingContainerWrapper extends TransientCraftingContainer impleme
 	@Override
 	public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
 		ItemStack itemStack = this.itemHandler.insertItem(slot, stack, simulate);
-		this.menu.slotsChanged(this);
+		this.getMenu().slotsChanged(this);
 		return itemStack;
 	}
-	
+
 	@Override
 	public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
 		ItemStack stack = this.itemHandler.extractItem(slot, amount, simulate);
 		if (!stack.isEmpty()) {
-			this.menu.slotsChanged(this);
+			this.getMenu().slotsChanged(this);
 		}
 		return stack;
 	}
@@ -83,7 +88,7 @@ public class CraftingContainerWrapper extends TransientCraftingContainer impleme
 	@Override
 	public void setStackInSlot(int slot, @NotNull ItemStack stack) {
 		this.itemHandler.setStackInSlot(slot, stack);
-		this.menu.slotsChanged(this);
+		this.getMenu().slotsChanged(this);
 	}
 	
 	@Override
@@ -124,15 +129,15 @@ public class CraftingContainerWrapper extends TransientCraftingContainer impleme
 	public @NotNull ItemStack removeItem(int slot, int amount) {
 		ItemStack stack = this.extractItem(slot, amount, false);
 		if (!stack.isEmpty()) {
-			this.menu.slotsChanged(this);
+			this.getMenu().slotsChanged(this);
 		}
 		return stack;
 	}
-	
+
 	@Override
 	public void setItem(int slot, @NotNull ItemStack stack) {
 		this.insertItem(slot, stack, false);
-		this.menu.slotsChanged(this);
+		this.getMenu().slotsChanged(this);
 	}
 	
 	@Override

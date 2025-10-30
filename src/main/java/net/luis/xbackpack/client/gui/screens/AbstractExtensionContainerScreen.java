@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 package net.luis.xbackpack.client.gui.screens;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.luis.xbackpack.client.gui.screens.extension.AbstractExtensionScreen;
 import net.luis.xbackpack.network.XBNetworkHandler;
 import net.luis.xbackpack.network.packet.extension.UpdateExtensionPacket;
@@ -35,10 +34,8 @@ import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 
 import static net.luis.xbackpack.world.extension.BackpackExtensions.*;
 
@@ -49,10 +46,20 @@ import static net.luis.xbackpack.world.extension.BackpackExtensions.*;
  */
 
 public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensionContainerMenu> extends AbstractScrollableContainerScreen<T> {
-	
-	private final List<BackpackExtension> extensions = Lists.newArrayList(REGISTRY.get()).stream().filter(((Predicate<BackpackExtension>) BackpackExtension::isDisabled).negate()).toList();
+
+	private final List<BackpackExtension> extensions = initExtensions();
 	private final List<AbstractExtensionScreen> extensionScreens = Lists.newArrayList();
 	private BackpackExtension extension = NO.get();
+
+	private static List<BackpackExtension> initExtensions() {
+		List<BackpackExtension> list = new ArrayList<>();
+		for (BackpackExtension extension : REGISTRY) {
+			if (!extension.isDisabled()) {
+				list.add(extension);
+			}
+		}
+		return list;
+	}
 	
 	protected AbstractExtensionContainerScreen(@NotNull T menu, @NotNull Inventory inventory, @NotNull Component titleComponent) {
 		super(menu, inventory, titleComponent);
@@ -79,7 +86,6 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	
 	@Override
 	protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		this.renderExtensions(graphics, partialTicks, mouseX, mouseY);
 	}
 	
@@ -102,7 +108,13 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 		for (BackpackExtension extension : this.extensions) {
 			AbstractExtensionScreen extensionScreen = this.getExtensionScreen(extension);
 			if (extensionScreen != null && this.canUseExtension(extension)) {
-				extensionScreen.renderTooltip(graphics, mouseX, mouseY, this.extension == extension && this.extension != NO.get(), this.isExtensionRenderable(extension), (itemStack) -> graphics.renderTooltip(this.font, itemStack, mouseX, mouseY));
+				extensionScreen.renderTooltip(graphics, mouseX, mouseY, this.extension == extension && this.extension != NO.get(), this.isExtensionRenderable(extension), (itemStack) -> {
+					List<Component> tooltipLines = itemStack.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.EMPTY, this.minecraft.player, this.minecraft.options.advancedItemTooltips ? net.minecraft.world.item.TooltipFlag.ADVANCED : net.minecraft.world.item.TooltipFlag.NORMAL);
+					List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = tooltipLines.stream()
+						.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+						.toList();
+					graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null, itemStack);
+				});
 			}
 		}
 	}
@@ -129,7 +141,7 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 			if (backpackExtension == extension) {
 				break;
 			}
-			offset += extension.getIconHeight() + 2;
+			offset += backpackExtension.getIconHeight() + 2;
 		}
 		return offset;
 	}
@@ -145,16 +157,19 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		// Check extension icon clicks first
 		for (BackpackExtension extension : this.extensions) {
 			if (this.isInExtension(extension, mouseX, mouseY)) {
 				this.updateExtension(extension);
-				break;
+				return true; // Consume the click event
 			}
 		}
+		// Check if the extension screen handles the click
 		AbstractExtensionScreen extensionScreen = this.getExtensionScreen(this.extension);
 		if (extensionScreen != null && extensionScreen.mouseClicked(mouseX, mouseY, button)) {
 			return true;
 		}
+		// Finally, let the parent handle slot clicks
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	

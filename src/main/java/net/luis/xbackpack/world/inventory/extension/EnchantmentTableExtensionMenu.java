@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,10 +43,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.*;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -128,15 +128,15 @@ public class EnchantmentTableExtensionMenu extends AbstractExtensionMenu {
 				if (this.enchantingCosts[row] < row + 1) {
 					this.enchantingCosts[row] = 0;
 				}
-				this.enchantingCosts[row] = ForgeEventFactory.onEnchantmentLevelSet(this.player.level(), this.player.blockPosition(), row, power, inputStack, this.enchantingCosts[row]);
+				// EventHooks.onEnchantmentLevelSet was removed - just use the cost value directly
 			}
 			for (int row = 0; row < 3; ++row) {
 				if (this.enchantingCosts[row] > 0) {
 					List<EnchantmentInstance> enchantments = this.getEnchantmentList(inputStack, row, this.enchantingCosts[row]);
 					if (!enchantments.isEmpty()) {
 						EnchantmentInstance instance = Util.getRandom(enchantments, this.rng);
-						this.enchantments[row] = registry.getKey(instance.enchantment.value());
-						this.enchantmentLevels[row] = instance.level;
+						this.enchantments[row] = registry.getKey(instance.enchantment().value());
+						this.enchantmentLevels[row] = instance.level();
 					}
 				}
 			}
@@ -183,7 +183,7 @@ public class EnchantmentTableExtensionMenu extends AbstractExtensionMenu {
 						this.handler.getInputHandler().setStackInSlot(0, resultStack);
 					}
 					for (EnchantmentInstance enchantment : enchantments) {
-						resultStack.enchant(enchantment.enchantment, enchantment.level);
+						resultStack.enchant(enchantment.enchantment(), enchantment.level());
 					}
 					if (!player.getAbilities().instabuild) {
 						fuelStack.shrink(requiredFuel);
@@ -194,7 +194,7 @@ public class EnchantmentTableExtensionMenu extends AbstractExtensionMenu {
 					player.awardStat(Stats.ENCHANT_ITEM);
 					if (player instanceof ServerPlayer serverPlayer) {
 						CriteriaTriggers.ENCHANTED_ITEM.trigger(serverPlayer, resultStack, requiredFuel);
-						this.playSound(serverPlayer, serverPlayer.serverLevel());
+						this.playSound(serverPlayer, serverPlayer.level());
 					}
 					this.enchantmentSeed = player.getEnchantmentSeed();
 					this.slotsChanged();

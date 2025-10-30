@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,17 @@
 
 package net.luis.xbackpack.network.packet.modifier;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.luis.xbackpack.world.inventory.BackpackMenu;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  *
@@ -33,27 +36,25 @@ import java.util.Objects;
  *
  */
 
-public class UpdateSearchTermPacket implements NetworkPacket {
-	
-	private final String searchBoxValue;
-	
-	public UpdateSearchTermPacket(@NotNull String searchBoxValue) {
-		this.searchBoxValue = searchBoxValue;
-	}
-	
-	public UpdateSearchTermPacket(@NotNull FriendlyByteBuf buffer) {
-		this.searchBoxValue = buffer.readUtf();
-	}
-	
+public record UpdateSearchTermPacket(@NotNull String searchBoxValue) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateSearchTermPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_search_term"));
+
+	public static final StreamCodec<ByteBuf, UpdateSearchTermPacket> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.STRING_UTF8, UpdateSearchTermPacket::searchBoxValue,
+		UpdateSearchTermPacket::new
+	);
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeUtf(this.searchBoxValue);
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
-		ServerPlayer player = Objects.requireNonNull(context.getSender());
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
+			ServerPlayer player = (ServerPlayer) context.player();
 			if (player.containerMenu instanceof BackpackMenu menu) {
 				menu.setSearchTerm(this.searchBoxValue);
 			}

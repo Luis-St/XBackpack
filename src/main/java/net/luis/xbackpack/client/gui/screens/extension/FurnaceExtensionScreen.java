@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import net.luis.xbackpack.client.gui.screens.AbstractExtensionContainerScreen;
 import net.luis.xbackpack.world.extension.BackpackExtension;
 import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,8 +49,8 @@ public class FurnaceExtensionScreen extends AbstractExtensionScreen {
 	@Override
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {
 		if (open) {
-			graphics.blitSprite(RenderType::guiTextured, LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - this.fuelProgress, this.leftPos + this.imageWidth + 5, this.topPos + 104 - this.fuelProgress, 14, this.fuelProgress);
-			graphics.blitSprite(RenderType::guiTextured, BURN_PROGRESS_SPRITE, 24, 17, 0, 0, this.leftPos + this.imageWidth + 24, this.topPos + 88, this.cookingProgress, 17);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - this.fuelProgress, this.leftPos + this.imageWidth + 5, this.topPos + 104 - this.fuelProgress, 14, this.fuelProgress);
+			graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, BURN_PROGRESS_SPRITE, 24, 17, 0, 0, this.leftPos + this.imageWidth + 24, this.topPos + 88, this.cookingProgress, 17);
 		}
 	}
 	

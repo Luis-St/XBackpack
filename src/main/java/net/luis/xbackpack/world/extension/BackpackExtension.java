@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,12 +72,12 @@ public final class BackpackExtension {
 	}
 	
 	public @NotNull Component getTitle() {
-		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(this));
+		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(this));
 		return Component.translatable(location.getNamespace() + ".backpack_extension." + location.getPath() + ".title");
 	}
-	
+
 	public @NotNull Component getTooltip() {
-		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(this));
+		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(this));
 		return Component.translatable(location.getNamespace() + ".backpack_extension." + location.getPath() + ".tooltip");
 	}
 	
@@ -103,6 +103,6 @@ public final class BackpackExtension {
 	
 	@Override
 	public String toString() {
-		return Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(this)).toString();
+		return Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(this)).toString();
 	}
 }

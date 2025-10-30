@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,19 @@
 
 package net.luis.xbackpack.network.packet.modifier;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.luis.xbackpack.world.inventory.BackpackMenu;
 import net.luis.xbackpack.world.inventory.modifier.ItemModifierType;
 import net.luis.xbackpack.world.inventory.modifier.ModifiableMenu.UpdateType;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  *
@@ -35,31 +38,34 @@ import java.util.Objects;
  *
  */
 
-public class ResetItemModifierPacket implements NetworkPacket {
-	
-	private final ItemModifierType modifierType;
-	
+public record ResetItemModifierPacket(int modifierTypeId) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<ResetItemModifierPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "reset_item_modifier"));
+
+	public static final StreamCodec<ByteBuf, ResetItemModifierPacket> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.VAR_INT, ResetItemModifierPacket::modifierTypeId,
+		ResetItemModifierPacket::new
+	);
+
 	public ResetItemModifierPacket(@NotNull ItemModifierType modifierType) {
-		this.modifierType = modifierType;
+		this(modifierType.getId());
 	}
-	
-	public ResetItemModifierPacket(@NotNull FriendlyByteBuf buffer) {
-		this.modifierType = ItemModifierType.byId(buffer.readInt());
-	}
-	
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.modifierType.getId());
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
-		ServerPlayer player = Objects.requireNonNull(context.getSender());
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
+			ServerPlayer player = (ServerPlayer) context.player();
 			if (player.containerMenu instanceof BackpackMenu menu) {
-				if (this.modifierType == ItemModifierType.FILTER) {
+				ItemModifierType modifierType = ItemModifierType.byId(this.modifierTypeId);
+				if (modifierType == ItemModifierType.FILTER) {
 					menu.updateFilter(null, UpdateType.RESET, null);
-				} else if (this.modifierType == ItemModifierType.SORTER) {
+				} else if (modifierType == ItemModifierType.SORTER) {
 					menu.updateSorter(null, UpdateType.RESET, null);
 				}
 			}

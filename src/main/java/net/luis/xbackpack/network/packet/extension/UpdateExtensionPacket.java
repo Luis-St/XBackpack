@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,17 @@
 
 package net.luis.xbackpack.network.packet.extension;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.luis.xbackpack.world.extension.BackpackExtension;
 import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.luis.xbackpack.world.inventory.BackpackMenu;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -35,29 +39,32 @@ import java.util.Objects;
  *
  */
 
-public class UpdateExtensionPacket implements NetworkPacket {
-	
-	private final BackpackExtension extension;
-	
+public record UpdateExtensionPacket(@NotNull ResourceLocation extensionId) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateExtensionPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_extension"));
+
+	public static final StreamCodec<ByteBuf, UpdateExtensionPacket> STREAM_CODEC = StreamCodec.composite(
+		ResourceLocation.STREAM_CODEC, UpdateExtensionPacket::extensionId,
+		UpdateExtensionPacket::new
+	);
+
 	public UpdateExtensionPacket(@NotNull BackpackExtension extension) {
-		this.extension = extension;
+		this(Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(extension)));
 	}
-	
-	public UpdateExtensionPacket(@NotNull FriendlyByteBuf buffer) {
-		this.extension = BackpackExtensions.REGISTRY.get().getValue(buffer.readResourceLocation());
-	}
-	
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeResourceLocation(Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(this.extension)));
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
-		ServerPlayer player = Objects.requireNonNull(context.getSender());
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
+			ServerPlayer player = (ServerPlayer) context.player();
 			if (player.containerMenu instanceof BackpackMenu menu) {
-				menu.setExtension(this.extension);
+				BackpackExtension extension = BackpackExtensions.REGISTRY.getValue(this.extensionId);
+				menu.setExtension(extension);
 			}
 		});
 	}

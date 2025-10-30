@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -128,13 +129,25 @@ public abstract class AbstractModifiableContainerScreen<T extends AbstractModifi
 		super.renderTooltip(graphics, mouseX, mouseY);
 		TooltipFlag tooltipFlag = this.getTooltipFlag();
 		if (this.filterButton != null && this.filterButton.isMouseOver(mouseX, mouseY)) {
-			graphics.renderTooltip(this.font, this.menu.getFilter().getTooltip(tooltipFlag), Optional.empty(), mouseX, mouseY);
+			List<Component> components = this.menu.getFilter().getTooltip(tooltipFlag);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = components.stream()
+				.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+				.toList();
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null);
 		}
 		if (this.sorterButton != null && this.sorterButton.isMouseOver(mouseX, mouseY)) {
-			graphics.renderTooltip(this.font, this.menu.getSorter().getTooltip(tooltipFlag), Optional.empty(), mouseX, mouseY);
+			List<Component> components = this.menu.getSorter().getTooltip(tooltipFlag);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = components.stream()
+				.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+				.toList();
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null);
 		}
 		if (this.mergerButton != null && this.mergerButton.visible && this.mergerButton.isMouseOver(mouseX, mouseY)) {
-			graphics.renderTooltip(this.font, this.getMergerTooltip(tooltipFlag), Optional.empty(), mouseX, mouseY);
+			List<Component> components = this.getMergerTooltip(tooltipFlag);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents = components.stream()
+				.map(component -> net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(component.getVisualOrderText()))
+				.toList();
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null);
 		}
 	}
 	

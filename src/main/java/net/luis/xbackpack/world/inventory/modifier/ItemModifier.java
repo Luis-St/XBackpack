@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ public interface ItemModifier {
 	
 	@NotNull String getName();
 	
-	@Deprecated // ToDo: Replace by Enum#ordinal
 	int getId();
 	
 	@NotNull ItemModifierType getType();

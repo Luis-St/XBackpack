@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,11 +18,16 @@
 
 package net.luis.xbackpack.network.packet;
 
+import io.netty.buffer.ByteBuf;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.XBClientPacketHandler;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,25 +36,23 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 
-public class UpdateBackpackPacket implements NetworkPacket {
-	
-	private final CompoundTag tag;
-	
-	public UpdateBackpackPacket(@NotNull CompoundTag tag) {
-		this.tag = tag;
-	}
-	
-	public UpdateBackpackPacket(@NotNull FriendlyByteBuf buffer) {
-		this.tag = buffer.readNbt();
-	}
-	
+public record UpdateBackpackPacket(@NotNull CompoundTag tag) implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<UpdateBackpackPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "update_backpack"));
+
+	public static final StreamCodec<ByteBuf, UpdateBackpackPacket> STREAM_CODEC = StreamCodec.composite(
+		ByteBufCodecs.COMPOUND_TAG, UpdateBackpackPacket::tag,
+		UpdateBackpackPacket::new
+	);
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {
-		buffer.writeNbt(this.tag);
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
 	}
-	
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
 			XBClientPacketHandler.updateBackpack(this.tag);
 		});

@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,12 @@
 
 package net.luis.xbackpack.world.inventory.slot;
 
-import com.mojang.datafixers.util.Pair;
 import net.luis.xbackpack.BackpackConstants;
 import net.luis.xbackpack.XBackpack;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
  */
 
 public class BackpackToolSlot extends SlotItemHandler {
-	
-	private static final ResourceLocation EMPTY_TOOL_SLOT = ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "item/empty_tool_slot");
+
+	private static final ResourceLocation EMPTY_TOOL_SLOT = ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "container/slot/empty_tool_slot");
 	
 	public BackpackToolSlot(@NotNull IItemHandler itemHandler, int index, int xPosition, int yPosition) {
 		super(itemHandler, index, xPosition, yPosition);
@@ -58,7 +56,7 @@ public class BackpackToolSlot extends SlotItemHandler {
 	}
 	
 	@Override
-	public @NotNull Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_TOOL_SLOT);
+	public @NotNull ResourceLocation getNoItemIcon() {
+		return EMPTY_TOOL_SLOT;
 	}
 }

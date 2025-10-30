@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -106,15 +105,15 @@ public abstract class AbstractExtensionScreen {
 	}
 	
 	protected @NotNull ResourceLocation getTexture() {
-		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.get().getKey(this.extension));
+		ResourceLocation location = Objects.requireNonNull(BackpackExtensions.REGISTRY.getKey(this.extension));
 		return ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "textures/gui/container/" + location.getPath() + "_extension.png");
 	}
-	
+
 	public void render(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
 		int offset = this.getExtensionOffset(this.extension);
 		int iconWidth = this.extension.getIconWidth();
 		int iconHeight = this.extension.getIconHeight();
-		graphics.blitSprite(RenderType::guiTextured, EXTENSION_BUTTON_SPRITE, this.leftPos + this.imageWidth, this.topPos + offset, iconWidth, iconHeight);
+		graphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, EXTENSION_BUTTON_SPRITE, this.leftPos + this.imageWidth, this.topPos + offset, iconWidth, iconHeight);
 		graphics.renderItem(this.extension.getIcon(), this.leftPos + this.imageWidth + 1, this.topPos + 3 + offset);
 	}
 	
@@ -122,7 +121,7 @@ public abstract class AbstractExtensionScreen {
 		int offset = this.getExtensionOffset(this.extension);
 		int x = this.leftPos + this.imageWidth - 3;
 		int y = this.topPos + offset;
-		graphics.blit(RenderType::guiTextured, this.getTexture(), x, y, 0.0F, 0.0F, 150, 150, 256, 256);
+		graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, this.getTexture(), x, y, 0.0F, 0.0F, 150, 150, 256, 256);
 		graphics.renderItem(this.extension.getIcon(), this.leftPos + this.imageWidth + 1, this.topPos + 4 + offset);
 		graphics.renderItemDecorations(this.font, this.extension.getIcon(), this.leftPos + this.imageWidth + 1, this.topPos + 4 + offset);
 		graphics.drawString(this.font, this.extension.getTitle(), this.leftPos + this.imageWidth + 19, this.topPos + 9 + offset, 4210752, false);
@@ -130,12 +129,14 @@ public abstract class AbstractExtensionScreen {
 			this.renderAdditional(graphics, partialTicks, mouseX, mouseY, true);
 		}
 	}
-	
+
 	protected void renderAdditional(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, boolean open) {}
-	
+
 	public void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY, boolean open, boolean renderable, @NotNull Consumer<ItemStack> tooltipRenderer) {
 		if (this.isInExtension(this.extension, mouseX, mouseY) && !open && renderable) {
-			graphics.renderTooltip(this.font, this.extension.getTooltip(), mouseX, mouseY);
+			List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent> tooltipComponents =
+				java.util.List.of(net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent.create(this.extension.getTooltip().getVisualOrderText()));
+			graphics.renderTooltip(this.font, tooltipComponents, mouseX, mouseY, net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner.INSTANCE, null);
 		}
 	}
 	

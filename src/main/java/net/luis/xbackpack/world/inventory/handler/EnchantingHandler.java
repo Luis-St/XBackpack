@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@ package net.luis.xbackpack.world.inventory.handler;
 import net.luis.xbackpack.world.item.DynamicItemStackHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.*;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -68,15 +70,18 @@ public class EnchantingHandler {
 	
 	public @NotNull CompoundTag serialize(HolderLookup.@NotNull Provider provider) {
 		CompoundTag tag = new CompoundTag();
-		tag.put("power_handler", this.powerHandler.serializeNBT(provider));
-		tag.put("input_handler", this.inputHandler.serializeNBT(provider));
-		tag.put("fuel_handler", this.fuelHandler.serializeNBT(provider));
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+		output.putChild("power_handler", this.powerHandler);
+		output.putChild("input_handler", this.inputHandler);
+		output.putChild("fuel_handler", this.fuelHandler);
+		tag.merge(output.buildResult());
 		return tag;
 	}
-	
+
 	public void deserialize(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
-		this.powerHandler.deserializeNBT(provider, tag.getCompound("power_handler"));
-		this.inputHandler.deserializeNBT(provider, tag.getCompound("input_handler"));
-		this.fuelHandler.deserializeNBT(provider, tag.getCompound("fuel_handler"));
+		ValueInput input = TagValueInput.create(ProblemReporter.DISCARDING, provider, tag);
+		input.child("power_handler").ifPresent(this.powerHandler::deserialize);
+		input.child("input_handler").ifPresent(this.inputHandler::deserialize);
+		input.child("fuel_handler").ifPresent(this.fuelHandler::deserialize);
 	}
 }

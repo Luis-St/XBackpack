@@ -1,0 +1,30 @@
+modLoader = "javafml"
+loaderVersion = "[9,)"
+license = "All rights reserved"
+
+[[mods]]
+modId = "xbackpack"
+version = "${MinecraftVersion}-${ModVersion}"
+displayName = "XBackpack"
+credits = "Thanks for downloading my Mod"
+authors = "Luis"
+displayURL = "https://github.com/Luis-St/Forge-XBackpack/issues"
+description = '''
+Adds a cool Backpack to the Game
+Have a lot of fun when playing
+XBackpack Development Team
+'''
+
+[[dependencies.xbackpack]]
+modId = "neoforge"
+type = "required"
+versionRange = "${NeoForgeVersionRange}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.xbackpack]]
+modId = "minecraft"
+type = "required"
+versionRange = "${MinecraftVersionRange}"
+ordering = "NONE"
+side = "BOTH"

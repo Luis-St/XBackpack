@@ -1,6 +1,6 @@
 /*
  * XBackpack
- * Copyright (C) 2024 Luis Staudt
+ * Copyright (C) 2025 Luis Staudt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,20 @@
 
 package net.luis.xbackpack.network.packet.tool.next;
 
+import io.netty.buffer.ByteBuf;
 import net.luis.xbackpack.BackpackConstants;
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.network.NetworkPacket;
 import net.luis.xbackpack.world.capability.BackpackProvider;
 import net.luis.xbackpack.world.capability.IBackpack;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  *
@@ -37,20 +39,24 @@ import java.util.Objects;
  *
  */
 
-public class NextToolDownPacket implements NetworkPacket {
-	
-	public NextToolDownPacket() {}
-	
-	public NextToolDownPacket(@NotNull FriendlyByteBuf buffer) {}
-	
+public record NextToolDownPacket() implements NetworkPacket {
+
+	public static final CustomPacketPayload.Type<NextToolDownPacket> TYPE =
+		new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(XBackpack.MOD_ID, "next_tool_down"));
+
+	public static final StreamCodec<ByteBuf, NextToolDownPacket> STREAM_CODEC =
+		StreamCodec.unit(new NextToolDownPacket());
+
 	@Override
-	public void encode(@NotNull FriendlyByteBuf buffer) {}
-	
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
+
 	@Override
-	public void handle(CustomPayloadEvent.@NotNull Context context) {
-		ServerPlayer player = context.getSender();
+	public void handle(@NotNull IPayloadContext context) {
 		context.enqueueWork(() -> {
-			IBackpack backpack = BackpackProvider.get(Objects.requireNonNull(player));
+			ServerPlayer player = (ServerPlayer) context.player();
+			IBackpack backpack = BackpackProvider.get(player);
 			ItemStack main = player.getMainHandItem().copy();
 			ItemStack top = backpack.getToolHandler().getStackInSlot(0).copy();
 			ItemStack mid = backpack.getToolHandler().getStackInSlot(1).copy();
