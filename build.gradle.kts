@@ -99,6 +99,10 @@ licenseManager {
 	exclude("**/Main.java")
 }
 
+tasks.compileJava {
+	dependsOn(tasks.named("updateLicenses"))
+}
+
 java {
 	withSourcesJar()
 }
