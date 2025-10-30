@@ -22,22 +22,19 @@ import com.google.common.collect.Lists;
 import net.luis.xbackpack.util.Util;
 import net.luis.xbackpack.world.item.CustomBackpackFilterItem;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DamageResistant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.stream.StreamSupport;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.stream.StreamSupport;
 
 /**
  *

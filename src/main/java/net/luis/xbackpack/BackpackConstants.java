@@ -22,11 +22,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.luis.xbackpack.world.extension.BackpackExtensions;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.entity.*;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.List;

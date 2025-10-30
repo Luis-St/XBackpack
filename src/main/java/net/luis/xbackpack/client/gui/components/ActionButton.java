@@ -18,13 +18,11 @@
 
 package net.luis.xbackpack.client.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.luis.xbackpack.XBackpack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;

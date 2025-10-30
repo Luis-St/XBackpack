@@ -21,9 +21,9 @@ package net.luis.xbackpack.event.client;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.client.XBKeyMappings;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

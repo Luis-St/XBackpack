@@ -21,9 +21,9 @@ package net.luis.xbackpack.data;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.data.provider.language.XBLanguageProvider;
 import net.minecraft.data.DataGenerator;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

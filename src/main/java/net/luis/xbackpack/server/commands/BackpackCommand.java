@@ -27,7 +27,6 @@ import net.luis.xbackpack.world.capability.IBackpack;
 import net.luis.xbackpack.world.extension.*;
 import net.minecraft.commands.*;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -35,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 /**
  *

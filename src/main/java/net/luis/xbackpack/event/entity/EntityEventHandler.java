@@ -21,9 +21,9 @@ package net.luis.xbackpack.event.entity;
 import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.world.capability.BackpackProvider;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

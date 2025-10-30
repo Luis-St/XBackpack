@@ -18,7 +18,6 @@
 
 package net.luis.xbackpack.world.inventory.wrapper;
 
-import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.TransientCraftingContainer;

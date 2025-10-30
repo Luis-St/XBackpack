@@ -19,7 +19,6 @@
 package net.luis.xbackpack.client.gui.screens;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.luis.xbackpack.client.gui.screens.extension.AbstractExtensionScreen;
 import net.luis.xbackpack.network.XBNetworkHandler;
 import net.luis.xbackpack.network.packet.extension.UpdateExtensionPacket;
@@ -29,7 +28,6 @@ import net.luis.xbackpack.world.extension.BackpackExtensionState;
 import net.luis.xbackpack.world.inventory.AbstractExtensionContainerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,8 +36,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.stream.StreamSupport;
 
 import static net.luis.xbackpack.world.extension.BackpackExtensions.*;
 

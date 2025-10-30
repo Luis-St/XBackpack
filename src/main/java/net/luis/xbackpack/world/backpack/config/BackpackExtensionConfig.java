@@ -20,7 +20,8 @@ package net.luis.xbackpack.world.backpack.config;
 
 import com.google.common.collect.Maps;
 import net.luis.xbackpack.world.extension.*;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
