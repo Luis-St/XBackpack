@@ -127,12 +127,12 @@ public class StonecutterExtensionScreen extends AbstractExtensionScreen {
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean flag) {
 		if (this.shouldDisplayRecipes()) {
 			for (int index = this.startIndex; index < this.startIndex + 12; ++index) {
 				int i = index - this.startIndex;
-				double x = mouseX - (this.leftPos + 225 + i % 4 * 16);
-				double y = mouseY - (this.topPos + 142 + i / 4.0 * 18);
+				double x = event.x() - (this.leftPos + 225 + i % 4 * 16);
+				double y = event.y() - (this.topPos + 142 + i / 4.0 * 18);
 				if (x >= 0.0 && y >= 0.0 && x < 16.0 && y < 18.0) {
 					Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1.0F));
 					Objects.requireNonNull(this.minecraft.gameMode).handleInventoryButtonClick(this.screen.getMenu().containerId, index);
@@ -142,31 +142,31 @@ public class StonecutterExtensionScreen extends AbstractExtensionScreen {
 			}
 			double x = this.leftPos + this.imageWidth + 72;
 			double y = this.topPos + 143;
-			if (mouseX >= x && x + 12 >= mouseX && mouseY >= y && y + 54 >= mouseY) {
+			if (event.x() >= x && x + 12 >= event.x() && event.y() >= y && y + 54 >= event.y()) {
 				this.scrolling = true;
 				return true;
 			}
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, flag);
 	}
-	
+
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
 		this.scrolling = false;
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(event);
 	}
-	
+
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
 		if (this.scrolling && this.isScrollBarActive()) {
 			int top = this.topPos + 141;
 			int bottom = top + 54;
-			this.scrollOffset = (mouseY - top - 7.5) / ((bottom - top) - 15.0);
+			this.scrollOffset = (event.y() - top - 7.5) / ((bottom - top) - 15.0);
 			this.scrollOffset = Mth.clamp(this.scrollOffset, 0.0, 1.0);
 			this.startIndex = (int) ((this.scrollOffset * this.getOffScreenRows()) + 0.5) * 4;
 			return true;
 		} else {
-			return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+			return super.mouseDragged(event, dragX, dragY);
 		}
 	}
 	

@@ -164,12 +164,12 @@ public abstract class AbstractModifiableContainerScreen<T extends AbstractModifi
 	protected abstract @NotNull TooltipFlag getTooltipFlag();
 	
 	@Override
-	public boolean charTyped(char character, int modifiers) {
+	public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
 		if (this.ignoreTextInput) {
 			return false;
 		} else if (this.searchBox != null) {
 			String searchBoxValue = this.searchBox.getValue();
-			if (this.searchBox.charTyped(character, modifiers)) {
+			if (this.searchBox.charTyped(event)) {
 				if (!Objects.equals(searchBoxValue, this.searchBox.getValue())) {
 					this.updateSearchTerm(this.searchBox.getValue());
 				}
@@ -178,31 +178,32 @@ public abstract class AbstractModifiableContainerScreen<T extends AbstractModifi
 				return false;
 			}
 		}
-		return super.charTyped(character, modifiers);
+		return super.charTyped(event);
 	}
-	
+
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
 		this.ignoreTextInput = false;
-		if (this.hoveredSlot != null && this.hoveredSlot.hasItem() && InputConstants.getKey(keyCode, scanCode).getNumericKeyValue().isPresent()) {
+		var key = com.mojang.blaze3d.platform.InputConstants.getKey(event);
+		if (this.hoveredSlot != null && this.hoveredSlot.hasItem() && key.getNumericKeyValue().isPresent()) {
 			this.ignoreTextInput = true;
 			return true;
 		} else if (this.searchBox != null && this.searchBox.isFocused()) {
 			String searchBoxValue = this.searchBox.getValue();
-			if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
+			if (this.searchBox.keyPressed(event)) {
 				if (!Objects.equals(searchBoxValue, this.searchBox.getValue())) {
 					this.updateSearchTerm(this.searchBox.getValue());
 				}
 				return true;
 			} else {
-				return this.searchBox.isFocused() && this.searchBox.isVisible() && keyCode != 256 || super.keyPressed(keyCode, scanCode, modifiers);
+				return this.searchBox.isFocused() && this.searchBox.isVisible() && event.key() != 256 || super.keyPressed(event);
 			}
 		} else {
-			if (XBKeyMappings.BACKPACK_OPEN.getKey().getValue() == keyCode) {
+			if (XBKeyMappings.BACKPACK_OPEN.getKey().getValue() == event.key()) {
 				ClientEventHandler.lastPacket = 10;
 				this.onClose();
 				return true;
-			} else if (keyCode == 256) {
+			} else if (event.key() == 256) {
 				if (this.filterButton != null && this.filterButton.isHovered()) {
 					this.updateItemModifier(ItemModifierType.FILTER);
 					return true;
@@ -211,14 +212,14 @@ public abstract class AbstractModifiableContainerScreen<T extends AbstractModifi
 					return true;
 				}
 			}
-			return super.keyPressed(keyCode, scanCode, modifiers);
+			return super.keyPressed(event);
 		}
 	}
 	
 	@Override
-	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+	public boolean keyReleased(net.minecraft.client.input.KeyEvent event) {
 		this.ignoreTextInput = false;
-		return super.keyReleased(keyCode, scanCode, modifiers);
+		return super.keyReleased(event);
 	}
 	
 	protected abstract void updateSearchTerm(@NotNull String searchBoxValue);
