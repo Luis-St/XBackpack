@@ -68,9 +68,10 @@ public abstract class AbstractModifiableContainerScreen<T extends AbstractModifi
 			searchBox.setBordered(false);
 			searchBox.setVisible(true);
 			searchBox.setCanLoseFocus(true);
-			searchBox.setTextColor(16777215);
+			searchBox.setTextColor(-1);
+			searchBox.setTextColorUneditable(-1);
 			return searchBox;
-		}, this::addWidget);
+		}, this::addRenderableWidget);
 		this.filterButton = this.getFilterData().addIfExists((xPosition, yPosition, width, height) -> {
 			return new ActionButton(xPosition, yPosition, width, height, (type) -> {
 				Objects.requireNonNull(Objects.requireNonNull(this.minecraft).gameMode).handleInventoryButtonClick(this.menu.containerId, Objects.requireNonNull(type) == ClickType.LEFT ? 0 : 1);
@@ -119,9 +120,7 @@ public abstract class AbstractModifiableContainerScreen<T extends AbstractModifi
 	
 	@Override
 	protected void renderScreen(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		if (this.searchBox != null) {
-			this.searchBox.render(graphics, mouseX, mouseY, partialTicks);
-		}
+		// SearchBox is now rendered automatically via addRenderableWidget()
 	}
 	
 	@Override
