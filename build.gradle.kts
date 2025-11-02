@@ -137,10 +137,8 @@ publishing {
 		if (username != null && password != null) {
 			maven {
 				url = uri("https://maven.luis-st.net/forge/")
-				credentials {
-					this.username = username
-					this.password = password
-				}
+				credentials.username = username
+				credentials.password = password
 			}
 		} else {
 			logger.error("No credentials provided. Publishing to maven.luis-st.net not possible.")
