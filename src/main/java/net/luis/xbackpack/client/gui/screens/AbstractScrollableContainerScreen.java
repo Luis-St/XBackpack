@@ -250,28 +250,28 @@ public abstract class AbstractScrollableContainerScreen<T extends AbstractContai
 	protected abstract int clampMouseScroll(double delta);
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (button == 0 && this.isInScrollbar(mouseX, mouseY)) {
+	public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean flag) {
+		if (event.button() == 0 && this.isInScrollbar(event.x(), event.y())) {
 			this.scrolling = true;
-			this.scrollOffset = this.clampMouseMove(mouseY);
+			this.scrollOffset = this.clampMouseMove(event.y());
 			return true;
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.scrolling = false;
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseClicked(event, flag);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		if (button == 0 && this.scrolling) {
-			this.scrollOffset = this.clampMouseMove(mouseY);
+	public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+		this.scrolling = false;
+		return super.mouseReleased(event);
+	}
+
+	@Override
+	public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
+		if (event.button() == 0 && this.scrolling) {
+			this.scrollOffset = this.clampMouseMove(event.y());
 			return true;
 		}
-		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		return super.mouseDragged(event, dragX, dragY);
 	}
 	
 	@Override

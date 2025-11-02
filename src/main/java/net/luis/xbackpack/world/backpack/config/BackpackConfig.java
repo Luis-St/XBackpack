@@ -41,7 +41,7 @@ public class BackpackConfig {
 	
 	public BackpackConfig(@NotNull Player player) {
 		this.player = player;
-		this.isServerSide = !this.player.level().isClientSide;
+		this.isServerSide = !this.player.level().isClientSide();
 		this.clientConfig = new BackpackClientConfig();
 		this.extensionConfig = new BackpackExtensionConfig();
 	}

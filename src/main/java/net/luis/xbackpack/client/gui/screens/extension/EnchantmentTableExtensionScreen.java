@@ -175,15 +175,15 @@ public class EnchantmentTableExtensionScreen extends AbstractExtensionScreen {
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean flag) {
 		if (this.minecraft != null) {
 			for (int row = 0; row < 3; row++) {
-				if (this.isHoveringRow(row, mouseX, mouseY)) {
+				if (this.isHoveringRow(row, event.x(), event.y())) {
 					Objects.requireNonNull(this.minecraft.gameMode).handleInventoryButtonClick(this.screen.getMenu().containerId, row);
 				}
 			}
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, flag);
 	}
 	
 	private boolean isHoveringRow(int row, double mouseX, double mouseY) {

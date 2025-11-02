@@ -156,39 +156,39 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean flag) {
 		// Check extension icon clicks first
 		for (BackpackExtension extension : this.extensions) {
-			if (this.isInExtension(extension, mouseX, mouseY)) {
+			if (this.isInExtension(extension, event.x(), event.y())) {
 				this.updateExtension(extension);
 				return true; // Consume the click event
 			}
 		}
 		// Check if the extension screen handles the click
 		AbstractExtensionScreen extensionScreen = this.getExtensionScreen(this.extension);
-		if (extensionScreen != null && extensionScreen.mouseClicked(mouseX, mouseY, button)) {
+		if (extensionScreen != null && extensionScreen.mouseClicked(event, flag)) {
 			return true;
 		}
 		// Finally, let the parent handle slot clicks
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, flag);
 	}
-	
+
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
 		AbstractExtensionScreen extensionScreen = this.getExtensionScreen(this.extension);
-		if (extensionScreen != null && extensionScreen.mouseReleased(mouseX, mouseY, button)) {
+		if (extensionScreen != null && extensionScreen.mouseReleased(event)) {
 			return true;
 		}
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(event);
 	}
-	
+
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
 		AbstractExtensionScreen extensionScreen = this.getExtensionScreen(this.extension);
-		if (extensionScreen != null && extensionScreen.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+		if (extensionScreen != null && extensionScreen.mouseDragged(event, dragX, dragY)) {
 			return true;
 		}
-		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		return super.mouseDragged(event, dragX, dragY);
 	}
 	
 	@Override
@@ -201,13 +201,13 @@ public abstract class AbstractExtensionContainerScreen<T extends AbstractExtensi
 	}
 	
 	@Override
-	protected boolean hasClickedOutside(double mouseX, double mouseY, int leftPos, int topPos, int button) {
+	protected boolean hasClickedOutside(double mouseX, double mouseY, int leftPos, int topPos) {
 		int buttonOffset = 21;
 		if (this.extensions.stream().noneMatch(this::canUseExtension)) {
-			return super.hasClickedOutside(mouseX, mouseY, leftPos, topPos, button);
+			return super.hasClickedOutside(mouseX, mouseY, leftPos, topPos);
 		} else if (this.extension == NO.get()) {
 			this.imageWidth += buttonOffset;
-			boolean flag = super.hasClickedOutside(mouseX, mouseY, leftPos, topPos, button);
+			boolean flag = super.hasClickedOutside(mouseX, mouseY, leftPos, topPos);
 			this.imageWidth -= buttonOffset;
 			return flag;
 		} else if (leftPos > mouseX) {

@@ -140,15 +140,15 @@ public abstract class AbstractExtensionScreen {
 		}
 	}
 	
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean flag) {
 		return false;
 	}
-	
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+
+	public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
 		return false;
 	}
-	
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+
+	public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
 		return false;
 	}
 	
