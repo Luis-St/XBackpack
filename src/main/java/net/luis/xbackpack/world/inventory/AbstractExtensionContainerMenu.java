@@ -77,16 +77,17 @@ public abstract class AbstractExtensionContainerMenu extends AbstractContainerMe
 			}
 			return false;
 		}
+		int firstEmptySlot = -1;
 		for (int i = startIndex; i < endIndex; i++) {
 			Slot slot = this.getSlot(i);
 			if (!slot.mayPlace(stack)) {
 				continue;
 			}
 			if (!slot.hasItem()) {
-				slot.setByPlayer(stack.copy());
-				stack.setCount(0);
-				slot.setChanged();
-				return true;
+				if (firstEmptySlot == -1) {
+					firstEmptySlot = i;
+				}
+				continue;
 			}
 			ItemStack slotStack = slot.getItem();
 			if (slotStack.getCount() >= slotStack.getMaxStackSize() || !ItemStack.isSameItemSameComponents(stack, slotStack)) {
@@ -104,6 +105,13 @@ public abstract class AbstractExtensionContainerMenu extends AbstractContainerMe
 				stack.setCount(count - maxSize);
 				slot.setChanged();
 			}
+		}
+		if (!stack.isEmpty() && firstEmptySlot != -1) {
+			Slot slot = this.getSlot(firstEmptySlot);
+			slot.setByPlayer(stack.copy());
+			stack.setCount(0);
+			slot.setChanged();
+			return true;
 		}
 		return stack.isEmpty();
 	}
