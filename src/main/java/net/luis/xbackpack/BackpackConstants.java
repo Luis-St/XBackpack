@@ -54,7 +54,7 @@ public class BackpackConstants {
 	 * if you want to add valid items for the tool slot
 	 */
 	public static final List<Item> VALID_TOOL_SLOT_ITEMS = ITEMS.stream().filter(item -> {
-		return item.components().has(DataComponents.TOOL) || item instanceof ShearsItem || item instanceof FlintAndSteelItem || item instanceof ProjectileWeaponItem;
+		return item.components().has(DataComponents.TOOL) || item instanceof FlintAndSteelItem || item instanceof ProjectileWeaponItem || item instanceof FishingRodItem;
 	}).collect(Collectors.toList());
 	
 	/**

@@ -33,6 +33,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.*;
+
 /**
  *
  * @author Luis-St
@@ -48,7 +50,7 @@ public record NextToolTopPacket() implements NetworkPacket {
 		StreamCodec.unit(new NextToolTopPacket());
 
 	@Override
-	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+	public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
 		return TYPE;
 	}
 
@@ -62,10 +64,38 @@ public record NextToolTopPacket() implements NetworkPacket {
 			ItemStack mid = backpack.getToolHandler().getStackInSlot(1).copy();
 			ItemStack down = backpack.getToolHandler().getStackInSlot(2).copy();
 			if (BackpackConstants.VALID_TOOL_SLOT_ITEMS.contains(main.getItem())) {
-				backpack.getToolHandler().setStackInSlot(0, mid);
-				backpack.getToolHandler().setStackInSlot(1, down);
-				backpack.getToolHandler().setStackInSlot(2, main);
-				player.setItemInHand(InteractionHand.MAIN_HAND, top);
+				List<Integer> occupiedSlots = new ArrayList<>();
+				Map<Integer, ItemStack> slotItems = new HashMap<>();
+
+				occupiedSlots.add(-1);
+				slotItems.put(-1, main);
+
+				if (!top.isEmpty()) {
+					occupiedSlots.add(0);
+					slotItems.put(0, top);
+				}
+				if (!mid.isEmpty()) {
+					occupiedSlots.add(1);
+					slotItems.put(1, mid);
+				}
+				if (!down.isEmpty()) {
+					occupiedSlots.add(2);
+					slotItems.put(2, down);
+				}
+
+				if (occupiedSlots.size() >= 2) {
+					Map<Integer, ItemStack> newSlotItems = new HashMap<>();
+					for (int i = 0; i < occupiedSlots.size(); i++) {
+						int currentSlot = occupiedSlots.get(i);
+						int previousSlot = occupiedSlots.get((i - 1 + occupiedSlots.size()) % occupiedSlots.size());
+						newSlotItems.put(previousSlot, slotItems.get(currentSlot));
+					}
+
+					player.setItemInHand(InteractionHand.MAIN_HAND, newSlotItems.get(-1));
+					backpack.getToolHandler().setStackInSlot(0, newSlotItems.getOrDefault(0, ItemStack.EMPTY));
+					backpack.getToolHandler().setStackInSlot(1, newSlotItems.getOrDefault(1, ItemStack.EMPTY));
+					backpack.getToolHandler().setStackInSlot(2, newSlotItems.getOrDefault(2, ItemStack.EMPTY));
+				}
 			}
 		});
 	}
