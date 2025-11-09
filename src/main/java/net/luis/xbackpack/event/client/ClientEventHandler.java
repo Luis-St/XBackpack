@@ -92,8 +92,10 @@ public class ClientEventHandler {
 			if (BackpackConstants.VALID_TOOL_SLOT_ITEMS.contains(main.getItem())) {
 				IBackpack backpack = BackpackProvider.get(player);
 				ItemStack top = backpack.getToolHandler().getStackInSlot(0).copy();
+				ItemStack mid = backpack.getToolHandler().getStackInSlot(1).copy();
 				ItemStack down = backpack.getToolHandler().getStackInSlot(2).copy();
-				if (!top.isEmpty() && !down.isEmpty()) {
+				
+				if (!top.isEmpty() || !mid.isEmpty() || !down.isEmpty()) {
 					if (delta > 0) {
 						event.setCanceled(true);
 						XBNetworkHandler.INSTANCE.sendToServer(new NextToolTopPacket());
