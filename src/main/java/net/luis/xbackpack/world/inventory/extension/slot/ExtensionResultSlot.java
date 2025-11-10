@@ -18,12 +18,15 @@
 
 package net.luis.xbackpack.world.inventory.extension.slot;
 
+import net.luis.xbackpack.XBackpack;
+import net.luis.xbackpack.world.capability.BackpackProvider;
 import net.luis.xbackpack.world.extension.BackpackExtension;
 import net.luis.xbackpack.world.inventory.extension.AbstractExtensionMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,21 +36,29 @@ import org.jetbrains.annotations.NotNull;
  */
 
 public class ExtensionResultSlot extends ResultSlot implements ExtensionMenuSlot {
-	
+
 	private final AbstractExtensionMenu extensionMenu;
-	
+
 	public ExtensionResultSlot(@NotNull AbstractExtensionMenu extensionMenu, @NotNull Player player, @NotNull CraftingContainer craftingContainer, @NotNull Container container, int index, int xPosition, int yPosition) {
 		super(player, craftingContainer, container, index, xPosition, yPosition);
 		this.extensionMenu = extensionMenu;
 	}
-	
+
 	@Override
 	public @NotNull AbstractExtensionMenu getMenu() {
 		return this.extensionMenu;
 	}
-	
+
 	@Override
 	public @NotNull BackpackExtension getExtension() {
 		return this.extensionMenu.getExtension();
+	}
+
+	@Override
+	public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
+		XBackpack.LOGGER.debug("ExtensionResultSlot.onTake called for {} items: {}", this.extensionMenu.getExtension().getKey().location(), stack);
+		super.onTake(player, stack);
+		XBackpack.LOGGER.debug("Broadcasting changes after crafting result taken");
+		BackpackProvider.get(player).broadcastChanges();
 	}
 }

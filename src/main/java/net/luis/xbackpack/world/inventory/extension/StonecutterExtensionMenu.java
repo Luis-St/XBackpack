@@ -18,6 +18,7 @@
 
 package net.luis.xbackpack.world.inventory.extension;
 
+import net.luis.xbackpack.XBackpack;
 import net.luis.xbackpack.network.XBNetworkHandler;
 import net.luis.xbackpack.network.packet.extension.UpdateStonecutterPacket;
 import net.luis.xbackpack.world.capability.BackpackProvider;
@@ -84,6 +85,7 @@ public class StonecutterExtensionMenu extends AbstractExtensionMenu {
 	}
 	
 	private void onTake(@NotNull Player player, @NotNull ItemStack stack) {
+		XBackpack.LOGGER.debug("StonecutterExtensionMenu.onTake called for items: {}", stack);
 		stack.onCraftedBy(player, stack.getCount());
 		if (this.recipe != null && !this.recipe.value().isSpecial()) {
 			player.awardRecipes(Collections.singleton(this.recipe));
@@ -92,7 +94,8 @@ public class StonecutterExtensionMenu extends AbstractExtensionMenu {
 		if (!inputStack.isEmpty() && !this.handler.getInputHandler().getStackInSlot(0).isEmpty()) {
 			this.setupResult();
 		}
-		this.menu.broadcastChanges();
+		XBackpack.LOGGER.debug("Broadcasting changes after stonecutter result taken");
+		BackpackProvider.get(player).broadcastChanges();
 		if (player instanceof ServerPlayer serverPlayer) {
 			this.playSound(serverPlayer, serverPlayer.level());
 		}
