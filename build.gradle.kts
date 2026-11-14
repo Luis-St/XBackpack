@@ -12,8 +12,7 @@ plugins {
 	id("io.github.themrmilchmann.curseforge-publish") version "0.6.1"
 }
 
-val username: String? = System.getenv("MAVEN_USERNAME")
-val password: String? = System.getenv("MAVEN_PASSWORD")
+val artifactoryToken: String? = System.getenv("ARTIFACTORY_TOKEN")
 val token: String? = System.getenv("CURSEFORGE_TOKEN")
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -134,14 +133,14 @@ publishing {
 		}
 	}
 	repositories {
-		if (username != null && password != null) {
+		if (artifactoryToken != null) {
 			maven {
-				url = uri("https://maven.luis-st.net/forge/")
-				credentials.username = username
-				credentials.password = password
+				url = uri("https://artifact.luis-st.net/maven/forge/")
+				credentials.username = "__token__"
+				credentials.password = artifactoryToken
 			}
 		} else {
-			logger.error("No credentials provided. Publishing to maven.luis-st.net not possible.")
+			logger.error("No credentials provided. Publishing to artifact.luis-st.net not possible.")
 		}
 	}
 }

@@ -1,8 +1,8 @@
 name: Publish to maven and curseforge
 
 on:
-  release:
-    types: [ published ]
+  push:
+    tags: [ '*' ]
 
 permissions:
   contents: read
@@ -46,8 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Default
     env:
-      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
       CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
     steps:
       - name: 'Checkout repository'
@@ -68,8 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Default
     env:
-      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
       CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
     steps:
       - name: 'Checkout repository'

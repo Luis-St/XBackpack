@@ -12,7 +12,7 @@ pluginManagement {
 			url = uri("https://maven.neoforged.net/releases/")
 		}
 		maven {
-			url = uri("https://maven.luis-st.net/plugins/")
+			url = uri("https://artifact.luis-st.net/maven/plugins/")
 		}
 	}
 }
